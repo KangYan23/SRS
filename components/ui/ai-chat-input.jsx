@@ -1,117 +1,166 @@
-import * as React from "react"
+import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { Lightbulb, Mic, Globe, Paperclip, Send } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
- 
+import { AnimatePresence, motion } from "framer-motion";
+// import Image from "next/image"; // Not used, fallback to <img>
+
 const PLACEHOLDERS = [
   "Generate website with HextaUI",
   "Create a new project with Next.js",
-  "What is the meaning of life?",
-  "What is the best way to learn React?",
-  "How to cook a delicious meal?",
-  "Summarize this article",
+  "Ask about AI features",
+  "Design a landing page",
 ];
- 
-const AIChatInput = () => {
+
+const containerVariants = {
+  collapsed: {
+    height: 68,
+    boxShadow: "0 2px 8px 0 rgba(0,0,0,0.08)",
+    transition: { type: "spring", stiffness: 120, damping: 18 },
+  },
+  expanded: {
+    height: 700,
+    boxShadow: "0 8px 32px 0 rgba(0,0,0,0.16)",
+    transition: { type: "spring", stiffness: 120, damping: 18 },
+  },
+};
+
+function AIChatInput() {
+  const [isActive, setIsActive] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [showCardiac, setShowCardiac] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [showPlaceholder, setShowPlaceholder] = useState(true);
-  const [isActive, setIsActive] = useState(false);
   const [thinkActive, setThinkActive] = useState(false);
   const [deepSearchActive, setDeepSearchActive] = useState(false);
-  const [inputValue, setInputValue] = useState("");
   const wrapperRef = useRef(null);
- 
-  // Cycle placeholder text when input is inactive
+
+  // Placeholder animation logic (optional, can be improved)
   useEffect(() => {
-    if (isActive || inputValue) return;
- 
-    const interval = setInterval(() => {
-      setShowPlaceholder(false);
-      setTimeout(() => {
-        setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length);
-        setShowPlaceholder(true);
-      }, 400);
-    }, 3000);
- 
-    return () => clearInterval(interval);
+    if (!isActive && !inputValue) {
+      const interval = setInterval(() => {
+        setPlaceholderIndex((i) => (i + 1) % PLACEHOLDERS.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
   }, [isActive, inputValue]);
- 
-  // Close input when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(event.target)
-      ) {
-        if (!inputValue) setIsActive(false);
-      }
-    };
- 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [inputValue]);
- 
+
+
+  // Show a visible message when the heart is pressed
+  const [heartMsg, setHeartMsg] = useState("");
   const handleActivate = () => setIsActive(true);
- 
-  const containerVariants = {
-    collapsed: {
-      height: 68,
-      boxShadow: "0 2px 8px 0 rgba(0,0,0,0.08)",
-      transition: { type: "spring", stiffness: 120, damping: 18 },
-    },
-    expanded: {
-      height: 128,
-      boxShadow: "0 8px 32px 0 rgba(0,0,0,0.16)",
-      transition: { type: "spring", stiffness: 120, damping: 18 },
-    },
-  };
- 
+
+  function handleHeartClick(e) {
+    e.stopPropagation();
+    setShowCardiac(true);
+    setHeartMsg("❤️ Cardiac view activated!");
+    setTimeout(() => setHeartMsg(""), 2000);
+  }
+
+  // Placeholder animation variants
   const placeholderContainerVariants = {
-    initial: {},
-    animate: { transition: { staggerChildren: 0.025 } },
-    exit: { transition: { staggerChildren: 0.015, staggerDirection: -1 } },
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.3 } },
   };
- 
   const letterVariants = {
-    initial: {
-      opacity: 0,
-      filter: "blur(12px)",
-      y: 10,
-    },
-    animate: {
-      opacity: 1,
-      filter: "blur(0px)",
-      y: 0,
-      transition: {
-        opacity: { duration: 0.25 },
-        filter: { duration: 0.4 },
-        y: { type: "spring", stiffness: 80, damping: 20 },
-      },
-    },
-    exit: {
-      opacity: 0,
-      filter: "blur(12px)",
-      y: -10,
-      transition: {
-        opacity: { duration: 0.2 },
-        filter: { duration: 0.3 },
-        y: { type: "spring", stiffness: 80, damping: 20 },
-      },
-    },
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.1 } },
   };
- 
+
   return (
     <div
       className="w-full min-h-screen flex justify-center items-center text-black">
       <motion.div
         ref={wrapperRef}
-        className="w-full max-w-3xl"
+        className="w-full max-w-3xl relative"
         variants={containerVariants}
         animate={isActive || inputValue ? "expanded" : "collapsed"}
         initial="collapsed"
         style={{ overflow: "hidden", borderRadius: 32, background: "#fff" }}
         onClick={handleActivate}>
-        <div className="flex flex-col items-stretch w-full h-full">
+        {/* Body Figure Image - Shows when expanded */}
+        <AnimatePresence>
+          {(isActive || inputValue) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-[10000] p-4"
+            >
+              <div className="relative w-full h-full flex items-center justify-center z-[10000]">
+                {/* Cross-fade images */}
+                <motion.div
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: showCardiac ? 0 : 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0 w-full h-full flex items-center justify-center"
+                  style={{ zIndex: 1 }}
+                >
+                  <img
+                    src="/photo/bodyfigure.jpg"
+                    alt="Body Figure"
+                    width={400}
+                    height={500}
+                    className="object-contain max-h-[600px]"
+                    style={{ pointerEvents: 'none' }}
+                  />
+                </motion.div>
+                {/* Heart button overlaying the heart area on the body figure, always clickable, last child in .relative */}
+                {(isActive || inputValue) && !showCardiac && (
+                  <button
+                    type="button"
+                    aria-label="Show Cardiac"
+                    title="Click to view cardiac image"
+                    onClick={handleHeartClick}
+                    className="absolute flex items-center justify-center border-2 border-white shadow-lg transition-transform duration-150 hover:scale-110 hover:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    style={{
+                      left: '52%',
+                      top: '38%',
+                      width: 48,
+                      height: 48,
+                      transform: 'translate(-50%, -50%)',
+                      borderRadius: '50%',
+                      background: 'rgba(225, 29, 72, 0.18)', // transparent rose
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      boxShadow: '0 0 8px 2px #fff2, 0 2px 8px 0 #e11d4822',
+                      cursor: 'pointer',
+                      zIndex: 9999,
+                      pointerEvents: 'auto',
+                    }}
+                  >
+                    <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 'bold', fontSize: 28, lineHeight: 1, textShadow: '0 2px 8px #0002' }}>♥</span>
+                  </button>
+                )}
+
+      {/* Heart message toast */}
+      {heartMsg && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-6 py-3 rounded-lg shadow-lg z-[10000] text-lg animate-fade-in">
+          {heartMsg}
+        </div>
+      )}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: showCardiac ? 1 : 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute inset-0 w-full h-full flex items-center justify-center"
+                  style={{ zIndex: 2 }}
+                >
+                  <img
+                    src="/photo/cardiac.jpg"
+                    alt="Cardiac"
+                    width={400}
+                    height={500}
+                    className="object-contain max-h-[600px] pointer-events-none"
+                  />
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex flex-col items-stretch w-full h-full relative z-10">
           {/* Input Row */}
           <div
             className="flex items-center gap-2 p-3 rounded-full bg-white max-w-3xl w-full">
@@ -252,6 +301,6 @@ const AIChatInput = () => {
       </motion.div>
     </div>
   );
-};
- 
+}
+
 export { AIChatInput };
