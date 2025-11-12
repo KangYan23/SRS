@@ -7,7 +7,7 @@ const ChatbotUI = () => {
     <BackgroundPaths>
       <div className="h-[200px] flex items-end justify-center pb-8">
         <GooeyText
-          texts={["Hi", "Welcome", "to", "Smart", "Referral", "System"]}
+          texts={["Hi", "Welcome", "to",  "Smart", "Referral", "System"]}
           morphTime={1}
           cooldownTime={0.25}
           className="font-bold text-4xl"

@@ -5,8 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 // import Image from "next/image"; // Not used, fallback to <img>
 
 const PLACEHOLDERS = [
-  "Generate website with HextaUI",
-  "Create a new project with Next.js",
+  "Welcome to Smart Referral System",
+  "Select the body part",
   "Ask about AI features",
   "Design a landing page",
 ];
@@ -70,7 +70,8 @@ function AIChatInput() {
 
   return (
     <div
-      className="w-full min-h-screen flex justify-center items-center text-black">
+      className="w-full min-h-screen flex justify-center items-start text-black"
+  style={{ marginTop: '120px' }}>
       <motion.div
         ref={wrapperRef}
         className="w-full max-w-3xl relative"
