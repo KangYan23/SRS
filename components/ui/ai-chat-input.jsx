@@ -2,6 +2,7 @@ import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { Lightbulb, Mic, Globe, Paperclip, Send } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { ParticleButton } from "@/components/ui/button";
 // import Image from "next/image"; // Not used, fallback to <img>
 
 const PLACEHOLDERS = [
@@ -53,6 +54,12 @@ function AIChatInput() {
     e.stopPropagation();
     setShowCardiac(true);
     setHeartMsg("❤️ Cardiac view activated!");
+    setTimeout(() => setHeartMsg(""), 2000);
+  }
+
+  function handleUndo() {
+    setShowCardiac(false);
+    setHeartMsg("↩️ Back to body figure");
     setTimeout(() => setHeartMsg(""), 2000);
   }
 
@@ -155,6 +162,24 @@ function AIChatInput() {
                     height={500}
                     className="object-contain max-h-[600px] pointer-events-none"
                   />
+                  {/* Undo icon using ParticleButton for particles + undo action */}
+                  <ParticleButton
+                    onSuccess={handleUndo}
+                    particleDuration={700}
+                    hidePointerIcon={true}
+                    className="absolute flex items-center justify-center bg-white/90 hover:bg-gray-100 text-black shadow-lg border-2 border-gray-300 rounded-full transition-all"
+                    style={{
+                      right: 32,
+                      bottom: 32,
+                      width: 48,
+                      height: 48,
+                      zIndex: 10001,
+                      fontSize: 28,
+                      boxShadow: '0 2px 12px 0 #00000022',
+                    }}
+                  >
+                    <svg className="text-black" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                  </ParticleButton>
                 </motion.div>
               </div>
             </motion.div>
