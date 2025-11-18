@@ -1,5 +1,13 @@
-import Chatbot2UI from "@/components/Chatbot2UI";
+import ChatbotUI from "@/components/ChatbotUI";
 
-export default function Chatbot2() {
-  return <Chatbot2UI />;
-}
+const Chatbot2 = () => {
+  // This is where you can add:
+  // - Data fetching
+  // - API calls
+  // - State management
+  // - Backend logic
+  
+  return <ChatbotUI />;
+};
+
+export default Chatbot2;
