@@ -100,20 +100,35 @@ export function GooeyText({
       <div
         className="flex items-center justify-center"
         style={{ filter: "url(#threshold)" }}>
+        {/* Clinic-vibe gradient (teal -> soft blue). Use background-clip:text to fill text while keeping filter effects. */}
         <span
           ref={text1Ref}
           className={cn(
             "absolute inline-block select-none text-center text-6xl md:text-[60pt]",
-            "text-foreground",
             textClassName
-          )} />
+          )}
+          style={{
+            background: "linear-gradient(90deg,#0ea5a4,#60a5fa)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            WebkitTextFillColor: "transparent",
+          }}
+        />
         <span
           ref={text2Ref}
           className={cn(
             "absolute inline-block select-none text-center text-6xl md:text-[60pt]",
-            "text-foreground",
             textClassName
-          )} />
+          )}
+          style={{
+            background: "linear-gradient(90deg,#0ea5a4,#60a5fa)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            WebkitTextFillColor: "transparent",
+          }}
+        />
       </div>
     </div>
   );
