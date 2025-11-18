@@ -1,4 +1,4 @@
-import ChatbotUI from "@/components/ChatbotUI";
+import ChatbotUI2 from "@/components/ChatbotUI2";
 
 const Chatbot2 = () => {
   // This is where you can add:
@@ -7,7 +7,7 @@ const Chatbot2 = () => {
   // - State management
   // - Backend logic
   
-  return <ChatbotUI />;
+  return <ChatbotUI2 />;
 };
 
 export default Chatbot2;

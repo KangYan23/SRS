@@ -1,6 +1,8 @@
 // 21st-extension toolbar integration
 import { initToolbar } from '@21st-extension/toolbar';
 
+import "@/styles/globals.css";
+
 const stagewiseConfig = {
   plugins: [],
 };
@@ -12,8 +14,7 @@ function setupStagewise() {
 }
 
 setupStagewise();
-import "@/styles/globals.css";
 
 export default function App({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+  return <div><Component {...pageProps} /></div>;
 }

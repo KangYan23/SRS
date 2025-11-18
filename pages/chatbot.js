@@ -1,5 +1,5 @@
-import Chatbot2UI from "@/components/Chatbot2UI";
+import ChatbotUI from "@/components/ChatbotUI";
 
 export default function Chatbot() {
-  return <Chatbot2UI />;
+  return <ChatbotUI />;
 }
