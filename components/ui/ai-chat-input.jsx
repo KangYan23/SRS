@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from "react";
 import { Lightbulb, Mic, Globe, Paperclip, Send } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ParticleButton } from "@/components/ui/button";
+import ModelViewer from "@/components/ui/model-viewer";
+import { TypingAnimation } from "@/components/ui/typing-animation";
+import TypingSelection from "@/components/ui/typing-selection";
 // import Image from "next/image"; // Not used, fallback to <img>
 
 const PLACEHOLDERS = [
@@ -48,19 +51,69 @@ function AIChatInput() {
 
   // Show a visible message when the heart is pressed
   const [heartMsg, setHeartMsg] = useState("");
+  const [heartPressed, setHeartPressed] = useState(false);
+  const [selections, setSelections] = useState([]);
+  const modelContainerRef = useRef(null);
+  const historyRef = useRef(null);
+  const [currentOptions, setCurrentOptions] = useState(["test", "maybe", "test1", "test2", "test3"]);
+  const [optionsVisible, setOptionsVisible] = useState(true);
   const handleActivate = () => setIsActive(true);
 
   function handleHeartClick(e) {
     e.stopPropagation();
-    setShowCardiac(true);
-    setHeartMsg("❤️ Cardiac view activated!");
-    setTimeout(() => setHeartMsg(""), 2000);
+    // animate the heart growing, then show cardiac view
+    setHeartPressed(true);
+    setTimeout(() => {
+      setShowCardiac(true);
+      setHeartMsg("❤️ Cardiac view activated!");
+      setHeartPressed(false);
+      setTimeout(() => setHeartMsg(""), 2000);
+    }, 220); // match transition below
   }
 
   function handleUndo() {
     setShowCardiac(false);
     setHeartMsg("↩️ Back to body figure");
     setTimeout(() => setHeartMsg(""), 2000);
+  }
+
+  // Handle a selection from TypingSelection: append to the scrollable list.
+  function handleSelection(val, i) {
+    try {
+      setHeartMsg(`Selected: ${val}`);
+      // Add the chosen value to the history list
+      setSelections((prev) => [...prev, val]);
+
+      // Animate current options moving up and out, then replace with new options (filter-like behavior)
+      setOptionsVisible(false);
+      setTimeout(() => {
+        setCurrentOptions(["test6", "test7", "test8"]);
+        // brief delay before showing the new options (gives exit animation time)
+        setTimeout(() => setOptionsVisible(true), 80);
+      }, 320);
+
+      // After adding selections, scroll the page so the non-model content moves off-screen.
+      // Compute the model's top offset and scroll so the model is visible and other content is out of view.
+      // Auto-scroll the history container down so the newly-added selection and the new options are visible.
+      setTimeout(() => {
+        try {
+          if (historyRef && historyRef.current) {
+            historyRef.current.scrollTo({ top: historyRef.current.scrollHeight, behavior: 'smooth' });
+          }
+
+          const modelEl = modelContainerRef && modelContainerRef.current;
+          if (modelEl && typeof window !== 'undefined') {
+            const modelTop = modelEl.getBoundingClientRect().top + window.pageYOffset;
+            const offset = Math.max(0, modelTop - 40);
+            window.scrollTo({ top: offset, behavior: 'smooth' });
+          }
+        } catch (e) {}
+      }, 160);
+
+      setTimeout(() => setHeartMsg(""), 1800);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   // Placeholder animation variants
@@ -117,12 +170,15 @@ function AIChatInput() {
                 </motion.div>
                 {/* Heart button overlaying the heart area on the body figure, always clickable, last child in .relative */}
                 {(isActive || inputValue) && !showCardiac && (
-                  <button
+                  <motion.button
                     type="button"
                     aria-label="Show Cardiac"
                     title="Click to view cardiac image"
                     onClick={handleHeartClick}
-                    className="absolute flex items-center justify-center border-2 border-white shadow-lg transition-transform duration-150 hover:scale-110 hover:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                    animate={{ scale: heartPressed ? 1.4 : 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    whileTap={{ scale: 1.25 }}
+                    className="absolute flex items-center justify-center border-2 border-white shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-300"
                     style={{
                       left: '52%',
                       top: '38%',
@@ -139,7 +195,7 @@ function AIChatInput() {
                     }}
                   >
                     <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: 'bold', fontSize: 28, lineHeight: 1, textShadow: '0 2px 8px #0002' }}>♥</span>
-                  </button>
+                  </motion.button>
                 )}
 
       {/* Heart message toast */}
@@ -155,13 +211,81 @@ function AIChatInput() {
                   className="absolute inset-0 w-full h-full flex items-center justify-center"
                   style={{ zIndex: 2 }}
                 >
-                  <img
-                    src="/photo/cardiac.jpg"
-                    alt="Cardiac"
-                    width={400}
-                    height={500}
-                    className="object-contain max-h-[600px] pointer-events-none"
-                  />
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={showCardiac ? { opacity: 1 } : { opacity: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ zIndex: 2 }}
+                  >
+                    <div className="w-full h-full flex items-center justify-center" style={{ gap: 24 }}>
+                      {/* Left: Model (about half width) */}
+                                      <motion.div
+                                        ref={modelContainerRef}
+                                        initial={{ scale: 0.7, x: 0 }}
+                                        animate={showCardiac ? { scale: 1, x: 0 } : { scale: 0.7 }}
+                                        transition={{ duration: 0.45, ease: "easeOut" }}
+                                        style={{ width: '48%', height: '80%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                      >
+                                        <ModelViewer
+                                          src="/3d-model/stylizedhumanheart.glb"
+                                          alt="Cardiac 3D Model"
+                                          className="w-full h-full object-contain"
+                                          style={{ pointerEvents: 'auto' }}
+                                          rotationPerSecond={2.5}
+                                        />
+                                      </motion.div>
+
+                      {/* Right: Typing text */}
+                      <motion.div
+                        initial={{ x: 40, opacity: 0 }}
+                        animate={showCardiac ? { x: 0, opacity: 1 } : { x: 40, opacity: 0 }}
+                        transition={{ duration: 0.45, ease: "easeOut" }}
+                        style={{ width: '44%', height: '80%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <div className="w-full px-6">
+                          <TypingAnimation text="3d heart model test test" className="text-left text-2xl mb-4" />
+
+                          {/* history is kept but no internal scroll container */}
+
+                          <div className="w-full">
+                            {/* History + options area: history stays (you can scroll up), new options appear below */}
+                            <div ref={historyRef} className="h-12 overflow-y-auto mb-3 space-y-2 px-1 relative">
+                              {/* small fixed height shows only the latest selection by default; scroll up to see older entries */}
+                              <AnimatePresence initial={false} mode="popLayout">
+                                {selections.map((s, idx) => (
+                                  <motion.div
+                                    key={`${s}-${idx}`}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -6 }}
+                                    transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                                    className="px-3 py-2 rounded-md bg-gray-50 text-sm text-gray-900 shadow-sm"
+                                  >
+                                    {s}
+                                  </motion.div>
+                                ))}
+                              </AnimatePresence>
+                            </div>
+
+                            <AnimatePresence mode="wait">
+                              {optionsVisible && (
+                                <motion.div
+                                  key={currentOptions.join(',')}
+                                  initial={{ opacity: 0, y: 12 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: -40 }}
+                                  transition={{ duration: 0.32, ease: 'easeInOut' }}
+                                >
+                                  <TypingSelection options={currentOptions} onSelect={handleSelection} showHeader={false} />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </motion.div>
                   {/* Undo icon using ParticleButton for particles + undo action */}
                   <ParticleButton
                     onSuccess={handleUndo}
