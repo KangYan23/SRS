@@ -11,6 +11,8 @@ const ChatbotUI = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showBodyArea, setShowBodyArea] = useState(false);
   const [show3D, setShow3D] = useState(false);
+  const [selectedModelSrc, setSelectedModelSrc] = useState("/3d-model/stylizedhumanheart.glb");
+  const [activeBodyArea, setActiveBodyArea] = useState('cardiac');
   const [modelCentered, setModelCentered] = useState(true);
   const [hasMoved, setHasMoved] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
@@ -25,6 +27,11 @@ const ChatbotUI = () => {
   const overlayPosition = selectedPatient === 'adult'
     ? { left: '52%', top: '38%', transform: 'translate(-50%, -50%)' }
     : { left: '50%', top: '44%', transform: 'translate(-50%, -50%)' };
+
+  // place the breast control to the right side of the image area so it doesn't overlap
+  const overlayPositionBreast = selectedPatient === 'adult'
+    ? { right: '12%', top: '48%', transform: 'translateY(-50%)' }
+    : { right: '10%', top: '50%', transform: 'translateY(-50%)' };
 
   const handleStart = () => {
     setIsStarted(true);
@@ -144,10 +151,21 @@ const ChatbotUI = () => {
                           style={overlayPosition}
                           role="button"
                           tabIndex={0}
-                          onClick={(e) => { e.stopPropagation(); setShow3D(true); }}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShow3D(true); } }}
+                          onClick={(e) => { e.stopPropagation(); setSelectedModelSrc('/3d-model/stylizedhumanheart.glb'); setShow3D(true); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedModelSrc('/3d-model/stylizedhumanheart.glb'); setShow3D(true); } }}
                           aria-label="Open 3D cardiac model"
                         />
+
+                        {/* Breast control: opens the female breast anatomy model */}
+                        <button
+                          className="absolute w-20 h-10 flex items-center justify-center rounded-md bg-white/95 shadow-md cursor-pointer z-30"
+                          style={overlayPositionBreast}
+                          onClick={(e) => { e.stopPropagation(); setSelectedModelSrc('/3d-model/human_female_breast_anatomy.glb'); setActiveBodyArea('breast'); setShow3D(true); }}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedModelSrc('/3d-model/human_female_breast_anatomy.glb'); setActiveBodyArea('breast'); setShow3D(true); } }}
+                          aria-label="Open 3D breast anatomy model"
+                        >
+                          <span className="text-sm font-semibold text-slate-800">Breast</span>
+                        </button>
                       </div>
                     </div>
                   </>
@@ -192,7 +210,7 @@ const ChatbotUI = () => {
                         >
                             <div className="heart-wrapper" style={{ width: '86%', height: '86%' }}>
                               <ModelViewer
-                                src="/3d-model/stylizedhumanheart.glb"
+                                src={selectedModelSrc}
                                 alt="3D Cardiac Model"
                                 cameraControls={true}
                                 onUserInteract={(info) => {
@@ -220,12 +238,21 @@ const ChatbotUI = () => {
                           <TypingSelection
                             className="typing-panel-dark"
                             text={"How would you describe the patient's symptoms?"}
-                            options={[
-                              { label: "Chest pain", severity: 'high' },
-                              { label: "Shortness of breath", severity: 'medium' },
-                              { label: "Palpitations", severity: 'medium' },
-                              { label: "Other", severity: 'low' }
-                            ]}
+                            options={
+                              activeBodyArea === 'breast' ?
+                                [
+                                  { label: "Breast lump", severity: 'high' },
+                                  { label: "Nipple discharge", severity: 'medium' },
+                                  { label: "Breast pain", severity: 'medium' },
+                                  { label: "Other", severity: 'low' }
+                                ] :
+                                [
+                                  { label: "Chest pain", severity: 'high' },
+                                  { label: "Shortness of breath", severity: 'medium' },
+                                  { label: "Palpitations", severity: 'medium' },
+                                  { label: "Other", severity: 'low' }
+                                ]
+                            }
                             showHeader={false}
                             onSelect={(opt, i, checked) => { try { console.log('Selection chosen', opt, i, checked); } catch(_) {} }}
                           />
