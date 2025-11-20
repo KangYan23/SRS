@@ -4,29 +4,40 @@ import { cn } from "@/lib/utils";
 
 export function GooeyText({
   texts,
-  morphTime = 1,
-  cooldownTime = 0.25,
+  // Increase defaults for a slower, smoother morph
+  morphTime = 2.8,
+  cooldownTime = 0.6,
   className,
   textClassName
 }) {
   const text1Ref = React.useRef(null);
   const text2Ref = React.useRef(null);
+  const indexRef = React.useRef(texts && texts.length ? texts.length - 1 : 0);
+  const rafRef = React.useRef(null);
 
   React.useEffect(() => {
-    let textIndex = texts.length - 1;
+    // Ensure indexRef is valid if texts length changed
+    if (!texts || texts.length === 0) return;
+    if (indexRef.current >= texts.length) indexRef.current = texts.length - 1;
+
     let time = new Date();
     let morph = 0;
     let cooldown = cooldownTime;
 
     const setMorph = (fraction) => {
-      if (text1Ref.current && text2Ref.current) {
-        text2Ref.current.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
-        text2Ref.current.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+      if (!text1Ref.current || !text2Ref.current) return;
+      const f = Math.max(0, Math.min(1, fraction));
+      const blurMax = 8;
+      const blur2 = (1 - f) * blurMax;
+      const blur1 = f * blurMax;
+      const op2 = Math.pow(f, 0.9);
+      const op1 = Math.pow(1 - f, 0.9);
 
-        fraction = 1 - fraction;
-        text1Ref.current.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
-        text1Ref.current.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
-      }
+      text2Ref.current.style.filter = `blur(${blur2}px)`;
+      text2Ref.current.style.opacity = `${Math.round(op2 * 100)}%`;
+
+      text1Ref.current.style.filter = `blur(${blur1}px)`;
+      text1Ref.current.style.opacity = `${Math.round(op1 * 100)}%`;
     };
 
     const doCooldown = () => {
@@ -52,8 +63,18 @@ export function GooeyText({
       setMorph(fraction);
     };
 
+    // Initialize text contents if empty (prevents visible reset on re-render)
+    if (text1Ref.current && text2Ref.current) {
+      if (!text1Ref.current.textContent) {
+        text1Ref.current.textContent = texts[indexRef.current % texts.length];
+      }
+      if (!text2Ref.current.textContent) {
+        text2Ref.current.textContent = texts[(indexRef.current + 1) % texts.length];
+      }
+    }
+
     function animate() {
-      requestAnimationFrame(animate);
+      rafRef.current = requestAnimationFrame(animate);
       const newTime = new Date();
       const shouldIncrementIndex = cooldown > 0;
       const dt = (newTime.getTime() - time.getTime()) / 1000;
@@ -63,10 +84,10 @@ export function GooeyText({
 
       if (cooldown <= 0) {
         if (shouldIncrementIndex) {
-          textIndex = (textIndex + 1) % texts.length;
+          indexRef.current = (indexRef.current + 1) % texts.length;
           if (text1Ref.current && text2Ref.current) {
-            text1Ref.current.textContent = texts[textIndex % texts.length];
-            text2Ref.current.textContent = texts[(textIndex + 1) % texts.length];
+            text1Ref.current.textContent = texts[indexRef.current % texts.length];
+            text2Ref.current.textContent = texts[(indexRef.current + 1) % texts.length];
           }
         }
         doMorph();
@@ -75,10 +96,15 @@ export function GooeyText({
       }
     }
 
-    animate();
+    // Start the loop (cancel any previous frame to avoid duplicates)
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(animate);
 
     return () => {
-      // Cleanup function if needed
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
   }, [texts, morphTime, cooldownTime]);
 

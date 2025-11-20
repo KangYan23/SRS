@@ -1,47 +1,62 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { TypingAnimation } from "./typing-animation";
+import React, { useState, useId } from "react";
 
 export function TypingSelection({
-  text = "3d heart model test test",
-  options = ["test", "maybe", "test1", "test2", "test3"],
+  text = "",
+  // options can be strings or objects: { label: 'Chest pain', severity: 'high' }
+  options = [],
   onSelect = () => {},
   className = "",
   showHeader = true,
 }) {
-  const [selected, setSelected] = useState(null);
-  const [showOptions, setShowOptions] = useState(false);
+  // single selected index (only one may be selected at a time)
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const id = useId ? useId() : String(Math.random()).slice(2);
+  const groupName = `typing-selection-${id}`;
+  const showOptions = !showHeader;
 
-  // If the parent hides the header (typing animation), immediately show options
-  useEffect(() => {
-    if (!showHeader) {
-      setShowOptions(true);
-    }
-  }, [showHeader]);
-
-  function handleSelect(i) {
-    setSelected(i);
-    try { onSelect(options[i], i); } catch (e) {}
+  function selectOption(i) {
+    // Enforce single selection: selecting an option always selects it (no uncheck)
+    if (selectedIndex === i) return; // already selected
+    setSelectedIndex(i);
+    try { onSelect(options[i], i, true); } catch (e) {}
   }
 
+  const renderLabel = (opt) => (typeof opt === 'string' ? opt : (opt && opt.label) || '');
+  const severityOf = (opt) => (opt && opt.severity) || 'normal';
+
   return (
-    <div className={className}>
+    <div className={`${className} glass-card`}>
       {showHeader && (
-        <TypingAnimation text={text} className="mb-4" onComplete={() => setShowOptions(true)} />
+        <p className="card-title">{text}</p>
       )}
 
-      <div className="flex flex-col gap-2">
-        {showOptions && options.map((opt, i) => (
-          <button
-            key={opt + i}
-            type="button"
-            onClick={() => handleSelect(i)}
-            className={`w-full text-left px-4 py-2 rounded-md transition ${selected === i ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-black'}`}
-            aria-pressed={selected === i}
-          >
-            {opt}
-          </button>
-        ))}
+      <div className="flex flex-col gap-3">
+        {showOptions && options.map((opt, i) => {
+          const selected = selectedIndex === i;
+          const severity = severityOf(opt);
+          const neonClass = selected && severity === 'high' ? 'neon-selected-red' : (selected ? 'neon-selected-blue' : '');
+          return (
+            <div key={i} className={`symptom-card ${neonClass} ${selected ? 'selected' : ''}`}>
+              <input
+                id={`ts-${id}-${i}`}
+                type="radio"
+                name={groupName}
+                checked={selected}
+                onChange={() => selectOption(i)}
+                aria-label={renderLabel(opt)}
+                style={{ display: 'none' }}
+              />
+
+              <label htmlFor={`ts-${id}-${i}`} className="symptom-label" tabIndex={0}>
+                <div className="flex items-center gap-3">
+                  <span className="option-dot" aria-hidden="true" />
+                  <div className="label-text">{renderLabel(opt)}</div>
+                </div>
+              </label>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
