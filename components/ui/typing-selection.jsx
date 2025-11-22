@@ -5,7 +5,7 @@ export function TypingSelection({
   text = "",
   // options can be strings or objects: { label: 'Chest pain', severity: 'high' }
   options = [],
-  onSelect = () => {},
+  onSelect = () => { },
   className = "",
   showHeader = true,
 }) {
@@ -13,13 +13,13 @@ export function TypingSelection({
   const [selectedIndex, setSelectedIndex] = useState(null);
   const id = useId ? useId() : String(Math.random()).slice(2);
   const groupName = `typing-selection-${id}`;
-  const showOptions = !showHeader;
+  const showOptions = true;
 
   function selectOption(i) {
     // Enforce single selection: selecting an option always selects it (no uncheck)
     if (selectedIndex === i) return; // already selected
     setSelectedIndex(i);
-    try { onSelect(options[i], i, true); } catch (e) {}
+    try { onSelect(options[i], i, true); } catch (e) { }
   }
 
   const renderLabel = (opt) => (typeof opt === 'string' ? opt : (opt && opt.label) || '');
