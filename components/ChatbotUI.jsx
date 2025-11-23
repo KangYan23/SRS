@@ -56,7 +56,7 @@ const ChatbotUI = () => {
       {!isStarted ? (
         <div className="h-screen flex flex-col items-center justify-start pt-50 overflow-hidden">
           <GooeyText
-            texts={["Hi", "Welcome", "to",  "Smart", "Referral", "System"]}
+            texts={["Hi", "Welcome", "to", "Smart", "Referral", "System"]}
             morphTime={1}
             cooldownTime={0.25}
             className="font-bold text-4xl mb-25"
@@ -70,7 +70,7 @@ const ChatbotUI = () => {
         <div className="h-screen w-screen flex items-center justify-between gap-20 px-40 pr-20 overflow-hidden">
           <div className="flex items-center h-full">
             <GooeyText
-              texts={["Hi", "Welcome", "to",  "Smart", "Referral", "System"]}
+              texts={["Hi", "Welcome", "to", "Smart", "Referral", "System"]}
               morphTime={1}
               cooldownTime={0.25}
               className="font-bold text-4xl [writing-mode:vertical-lr] rotate-180"
@@ -93,7 +93,7 @@ const ChatbotUI = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {selectedPatient && (
                   <div className="absolute inset-0 flex items-center justify-center animate-[slideToCenter_0.5s_ease-out_forwards]">
                     {/* Back button on the preview so user can undo selection immediately */}
@@ -105,9 +105,9 @@ const ChatbotUI = () => {
                       &lt;
                     </button>
                     <div className="flex flex-col items-center scale-125">
-                      <img 
-                        src={selectedPatient === 'adult' ? "/photo/adult.png" : "/photo/child.png"} 
-                        alt={selectedPatient === 'adult' ? "Adult" : "Child"} 
+                      <img
+                        src={selectedPatient === 'adult' ? "/photo/adult.png" : "/photo/child.png"}
+                        alt={selectedPatient === 'adult' ? "Adult" : "Child"}
                         className="h-86 object-contain bg-transparent"
                       />
                       <p className="text-black text-4xl font-semibold mt-4">
@@ -206,25 +206,25 @@ const ChatbotUI = () => {
                           initial={{ x: 0, scale: 1.35 }}
                           animate={modelCentered ? { x: 0, scale: 1.35 } : { x: '-30%', scale: 0.95 }}
                           transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-                          
+
                         >
-                            <div className="heart-wrapper" style={{ width: '86%', height: '86%' }}>
-                              <ModelViewer
-                                src={selectedModelSrc}
-                                alt="3D Cardiac Model"
-                                cameraControls={true}
-                                onUserInteract={(info) => {
-                                  // Do not call preventDefault here so the webcomponent
-                                  // still receives pointer drag events and can rotate.
-                                  if (info && info.type === 'pointerup' && !hasMoved) {
-                                    setIsMoving(true);
-                                    setModelCentered(false);
-                                    setHasMoved(true);
-                                    setTimeout(() => setIsMoving(false), 900);
-                                  }
-                                }}
-                              />
-                            </div>
+                          <div className="heart-wrapper" style={{ width: '86%', height: '86%' }}>
+                            <ModelViewer
+                              src={selectedModelSrc}
+                              alt="3D Cardiac Model"
+                              cameraControls={true}
+                              onUserInteract={(info) => {
+                                // Do not call preventDefault here so the webcomponent
+                                // still receives pointer drag events and can rotate.
+                                if (info && info.type === 'pointerup' && !hasMoved) {
+                                  setIsMoving(true);
+                                  setModelCentered(false);
+                                  setHasMoved(true);
+                                  setTimeout(() => setIsMoving(false), 900);
+                                }
+                              }}
+                            />
+                          </div>
                         </motion.div>
                       </motion.div>
                       {/* Right-side selection panel (appears after model has moved) */}
@@ -254,7 +254,7 @@ const ChatbotUI = () => {
                                 ]
                             }
                             showHeader={false}
-                            onSelect={(opt, i, checked) => { try { console.log('Selection chosen', opt, i, checked); } catch(_) {} }}
+                            onSelect={(opt, i, checked) => { try { console.log('Selection chosen', opt, i, checked); } catch (_) { } }}
                           />
                         </div>
                       )}
@@ -267,7 +267,7 @@ const ChatbotUI = () => {
         </div>
       )}
     </BackgroundPaths>
-    
+
   );
 };
 
