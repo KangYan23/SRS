@@ -25,8 +25,8 @@ const ChatbotUI = () => {
   const [showResults, setShowResults] = useState(false);
   const [selectedScenario, setSelectedScenario] = useState(null);
   const [results, setResults] = useState([]);
+  const [allFetchedResults, setAllFetchedResults] = useState({ usually: [], maybe: [], rarely: [] });
   const [loadingResults, setLoadingResults] = useState(false);
-  const [allProcedures, setAllProcedures] = useState([]);
   const [showNotAppropriate, setShowNotAppropriate] = useState(false);
 
   // Fetch Panels when Body Area is selected
@@ -146,27 +146,28 @@ const ChatbotUI = () => {
       const data = await res.json();
       if (data.success) {
         // Filter and process results
+        // User wants 4 "Usually Appropriate" and 4 "May Be Appropriate"
         // Map DB values to UI categories
         const processed = data.data.map(item => {
           let app = 'unknown';
           const lowerApp = item.appropriate ? item.appropriate.toLowerCase() : '';
-          if (lowerApp.includes('usually appropriate')) app = 'usually';
+
+          if (lowerApp.includes('not appropriate')) app = 'rarely';
+          else if (lowerApp.includes('usually appropriate')) app = 'usually';
           else if (lowerApp.includes('may')) app = 'maybe';
-          else if (lowerApp.includes('not appropriate')) app = 'not';
+          else if (lowerApp.includes('rarely')) app = 'rarely';
 
           return { ...item, appropriate: app };
         });
 
-        // Store all procedures
-        setAllProcedures(processed);
-
         const usually = processed.filter(i => i.appropriate === 'usually').slice(0, 4);
         const maybe = processed.filter(i => i.appropriate === 'maybe').slice(0, 4);
+        const rarely = processed.filter(i => i.appropriate === 'rarely' || i.appropriate === 'unknown').slice(0, 4);
 
-        // Combine them for the chart
+        setAllFetchedResults({ usually, maybe, rarely });
         setResults([...usually, ...maybe]);
-        setShowResults(true);
         setShowNotAppropriate(false);
+        setShowResults(true);
       }
     } catch (error) {
       console.error("Failed to fetch results", error);
@@ -184,25 +185,18 @@ const ChatbotUI = () => {
     setShowResults(false);
     setSelectedScenario(null);
     setResults([]);
-    setAllProcedures([]);
     setShowNotAppropriate(false);
   };
 
   const handleToggleNotAppropriate = () => {
-    if (!showNotAppropriate) {
-      // Add "Usually not appropriate" procedures to existing results
-      const usually = allProcedures.filter(i => i.appropriate === 'usually').slice(0, 4);
-      const maybe = allProcedures.filter(i => i.appropriate === 'maybe').slice(0, 4);
-      const notAppropriate = allProcedures.filter(i => i.appropriate === 'not').slice(0, 4);
-      setResults([...usually, ...maybe, ...notAppropriate]);
-      setShowNotAppropriate(true);
+    if (showNotAppropriate) {
+      // Hide them
+      setResults([...allFetchedResults.usually, ...allFetchedResults.maybe]);
     } else {
-      // Remove "Usually not appropriate" procedures, show only appropriate ones
-      const usually = allProcedures.filter(i => i.appropriate === 'usually').slice(0, 4);
-      const maybe = allProcedures.filter(i => i.appropriate === 'maybe').slice(0, 4);
-      setResults([...usually, ...maybe]);
-      setShowNotAppropriate(false);
+      // Show them
+      setResults([...allFetchedResults.usually, ...allFetchedResults.maybe, ...allFetchedResults.rarely]);
     }
+    setShowNotAppropriate(!showNotAppropriate);
   };
 
   const handleStartAgain = () => {
@@ -252,10 +246,10 @@ const ChatbotUI = () => {
 
             {/* Results View */}
             {showResults ? (
-              <div className="absolute inset-0 flex flex-col p-8 animate-[fadeIn_0.5s_ease-in-out] bg-black/90 rounded-3xl text-white">
+              <div className="absolute inset-0 flex flex-col p-8 animate-[fadeIn_0.5s_ease-in-out] text-black">
                 <button
                   onClick={handleBackFromResults}
-                  className="absolute left-8 top-8 text-white text-xl font-semibold hover:scale-105 transition-transform flex items-center gap-2"
+                  className="absolute left-8 top-8 text-black text-xl font-semibold hover:scale-105 transition-transform flex items-center gap-2"
                 >
                   &lt; Back
                 </button>
@@ -265,32 +259,27 @@ const ChatbotUI = () => {
 
                   <div className="w-full flex flex-row gap-12 h-full px-12">
                     {/* Chart Area */}
-                    <div className="flex-1 flex flex-col relative border-l-2 border-b-2 border-white/50 p-4">
+                    <div className="flex-1 flex flex-col relative border-l-2 border-b-2 border-black/50 p-4">
                       {/* Y-axis label */}
                       <div className="absolute -left-32 top-0 text-sm -rotate-90 origin-right">appropriate lvl</div>
 
                       {/* Bars */}
                       <div className="flex flex-col gap-6 w-full mt-auto mb-8 overflow-y-auto max-h-96 pr-2 custom-scrollbar">
-                        {results.map((item, index) => {
-                          // Calculate width with minimum of 3% for visibility
-                          const widthPercent = Math.max(3, (item.score / 10) * 100);
-
-                          return (
-                            <div key={index} className="flex flex-col gap-1">
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className={`h-8 rounded-r-md transition-all duration-1000 ease-out ${item.appropriate === 'usually' ? 'bg-[#90EE90]' :
-                                      item.appropriate === 'maybe' ? 'bg-[#FFFFE0]' :
-                                        'bg-[#FF6B6B]'
-                                    }`}
-                                  style={{ width: `${widthPercent}%` }}
-                                ></div>
-                                <span className="text-xs text-white/70">...</span>
-                              </div>
-                              <span className="text-sm text-white/90">{item.name}</span>
+                        {results.map((item, index) => (
+                          <div key={index} className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`h-8 rounded-r-md transition-all duration-1000 ease-out ${item.appropriate === 'usually' ? 'bg-[#90EE90]' :
+                                  item.appropriate === 'maybe' ? 'bg-[#FFFFE0]' :
+                                    'bg-[#FFB6C1]'
+                                  }`}
+                                style={{ width: `${Math.max((item.score / 10) * 100, 1)}%` }}
+                              ></div>
+                              <span className="text-xs text-black/70">...</span>
                             </div>
-                          );
-                        })}
+                            <span className="text-sm text-black/90">{item.name}</span>
+                          </div>
+                        ))}
                       </div>
 
                       {/* X-axis */}
@@ -308,30 +297,24 @@ const ChatbotUI = () => {
                       <div className="flex flex-col gap-4 mb-8">
                         <div className="flex items-center gap-3">
                           <div className="w-4 h-4 bg-[#90EE90] rounded-sm"></div>
-                          <span className="text-xl font-handwritten">USUALLY AP</span>
+                          <span className="text-xl font-handwritten">usually ap</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-4 h-4 bg-[#FFFFE0] rounded-sm"></div>
-                          <span className="text-xl font-handwritten">MAYBE AP</span>
+                          <span className="text-xl font-handwritten">maybe ap</span>
                         </div>
-                        {showNotAppropriate && (
-                          <div className="flex items-center gap-3">
-                            <div className="w-4 h-4 bg-[#FF6B6B] rounded-sm"></div>
-                            <span className="text-xl font-handwritten">NOT AP</span>
-                          </div>
-                        )}
                       </div>
 
                       <button
                         onClick={handleToggleNotAppropriate}
-                        className="px-6 py-3 border-2 border-red-500/80 text-white rounded-full hover:bg-red-500/20 transition-colors font-handwritten text-xl"
+                        className={`px-6 py-3 border-2 ${showNotAppropriate ? '' : ''} border-black text-black rounded-full hover:bg-red-500/10 transition-colors font-handwritten text-xl`}
                       >
-                        {showNotAppropriate ? 'show ap choices' : 'show not ap choices'}
+                        {showNotAppropriate ? 'hide not ap choices' : 'show not ap choices'}
                       </button>
 
                       <button
                         onClick={handleStartAgain}
-                        className="px-6 py-3 border-2 border-red-500/80 text-white rounded-full hover:bg-red-500/20 transition-colors font-handwritten text-xl"
+                        className="px-6 py-3 border-2 border-black text-black rounded-full hover:bg-red-500/10 transition-colors font-handwritten text-xl"
                       >
                         start again
                       </button>
@@ -593,8 +576,9 @@ const ChatbotUI = () => {
             )}
           </div>
         </div>
-      )}
-    </BackgroundPaths>
+      )
+      }
+    </BackgroundPaths >
   );
 };
 
