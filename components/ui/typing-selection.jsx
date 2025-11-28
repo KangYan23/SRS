@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useId } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function TypingSelection({
   text = "",
@@ -23,42 +24,67 @@ export function TypingSelection({
   }
 
   const renderLabel = (opt) => (typeof opt === 'string' ? opt : (opt && opt.label) || '');
-  const severityOf = (opt) => (opt && opt.severity) || 'normal';
 
   return (
-    <div className={`${className} glass-card`}>
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    >
       {showHeader && (
-        <p className="card-title">{text}</p>
+        <motion.p
+          className="card-title"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          transition={{ delay: 0.2 }}
+        >
+          {text}
+        </motion.p>
       )}
 
       <div className="flex flex-col gap-3">
-        {showOptions && options.map((opt, i) => {
-          const selected = selectedIndex === i;
-          const severity = severityOf(opt);
-          const neonClass = selected && severity === 'high' ? 'neon-selected-red' : (selected ? 'neon-selected-blue' : '');
-          return (
-            <div key={i} className={`symptom-card ${neonClass} ${selected ? 'selected' : ''}`}>
-              <input
-                id={`ts-${id}-${i}`}
-                type="radio"
-                name={groupName}
-                checked={selected}
-                onChange={() => selectOption(i)}
-                aria-label={renderLabel(opt)}
-                style={{ display: 'none' }}
-              />
+        <AnimatePresence mode="wait">
+          {showOptions && options.map((opt, i) => {
+            const selected = selectedIndex === i;
 
-              <label htmlFor={`ts-${id}-${i}`} className="symptom-label" tabIndex={0}>
-                <div className="flex items-center gap-3">
-                  <span className="option-dot" aria-hidden="true" />
-                  <div className="label-text">{renderLabel(opt)}</div>
-                </div>
-              </label>
-            </div>
-          );
-        })}
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + (i * 0.05), duration: 0.3 }}
+                className={`premium-option-card ${selected ? 'selected' : ''}`}
+                onClick={() => selectOption(i)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <input
+                  id={`ts-${id}-${i}`}
+                  type="radio"
+                  name={groupName}
+                  checked={selected}
+                  onChange={() => selectOption(i)}
+                  aria-label={renderLabel(opt)}
+                  style={{ display: 'none' }}
+                />
+
+                <label htmlFor={`ts-${id}-${i}`} className="symptom-label" tabIndex={0} style={{ cursor: 'pointer', width: '100%' }}>
+                  <div className="flex items-center gap-3">
+                    <motion.span
+                      className="option-dot"
+                      aria-hidden="true"
+                      animate={selected ? { scale: 1.2, backgroundColor: "#38bdf8" } : { scale: 1, backgroundColor: "#94a3b8" }}
+                    />
+                    <div className="label-text">{renderLabel(opt)}</div>
+                  </div>
+                </label>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

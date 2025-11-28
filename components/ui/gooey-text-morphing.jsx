@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -7,6 +7,8 @@ export function GooeyText({
   // Increase defaults for a slower, smoother morph
   morphTime = 2.8,
   cooldownTime = 0.6,
+  blurAmount = 8,
+  alignment = "center",
   className,
   textClassName
 }) {
@@ -27,7 +29,7 @@ export function GooeyText({
     const setMorph = (fraction) => {
       if (!text1Ref.current || !text2Ref.current) return;
       const f = Math.max(0, Math.min(1, fraction));
-      const blurMax = 8;
+      const blurMax = blurAmount;
       const blur2 = (1 - f) * blurMax;
       const blur1 = f * blurMax;
       const op2 = Math.pow(f, 0.9);
@@ -106,7 +108,21 @@ export function GooeyText({
         rafRef.current = null;
       }
     };
-  }, [texts, morphTime, cooldownTime]);
+  }, [texts, morphTime, cooldownTime, blurAmount]);
+
+  const getAlignmentStyles = () => {
+    switch (alignment) {
+      case "left":
+        return { left: 0, textAlign: "left" };
+      case "right":
+        return { right: 0, textAlign: "right" };
+      case "center":
+      default:
+        return { left: "50%", transform: "translateX(-50%)", textAlign: "center" };
+    }
+  };
+
+  const alignmentStyles = getAlignmentStyles();
 
   return (
     <div className={cn("relative", className)}>
@@ -124,36 +140,23 @@ export function GooeyText({
         </defs>
       </svg>
       <div
-        className="flex items-center justify-center"
+        className="w-full h-full relative"
         style={{ filter: "url(#threshold)" }}>
-        {/* Clinic-vibe gradient (teal -> soft blue). Use background-clip:text to fill text while keeping filter effects. */}
         <span
           ref={text1Ref}
           className={cn(
-            "absolute inline-block select-none text-center text-6xl md:text-[60pt]",
+            "absolute inline-block select-none text-black",
             textClassName
           )}
-          style={{
-            background: "linear-gradient(90deg,#0ea5a4,#60a5fa)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            WebkitTextFillColor: "transparent",
-          }}
+          style={alignmentStyles}
         />
         <span
           ref={text2Ref}
           className={cn(
-            "absolute inline-block select-none text-center text-6xl md:text-[60pt]",
+            "absolute inline-block select-none text-black",
             textClassName
           )}
-          style={{
-            background: "linear-gradient(90deg,#0ea5a4,#60a5fa)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            WebkitTextFillColor: "transparent",
-          }}
+          style={alignmentStyles}
         />
       </div>
     </div>

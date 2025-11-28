@@ -1,9 +1,12 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { GooeyText } from "@/components/ui/gooey-text-morphing";
-import { BackgroundPaths } from "@/components/ui/background-paths";
 import { StartChatButton } from "@/components/ui/startchat-button";
 import ModelViewer from "@/components/ui/model-viewer";
 import TypingSelection from "@/components/ui/typing-selection";
+import { HandWrittenTitle } from "@/components/ui/hand-writing-text";
+import { ECGLine } from "@/components/ui/ecg-line";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ChatbotUI = () => {
@@ -34,14 +37,13 @@ const ChatbotUI = () => {
     if (selectedPatient && activeBodyArea) {
       const fetchPanels = async () => {
         try {
-          // Use type=panels to fetch unique panels
           const res = await fetch(`/api/conditions?type=panels&ageGroup=${selectedPatient}&bodyArea=${activeBodyArea}`);
           const data = await res.json();
           if (data.success) {
             setPanels(data.data);
-            setSelectedPanel(null); // Reset panel selection
-            setConditions([]); // Reset conditions
-            setSelectedCondition(null); // Reset condition selection
+            setSelectedPanel(null);
+            setConditions([]);
+            setSelectedCondition(null);
           }
         } catch (error) {
           console.error("Failed to fetch panels", error);
@@ -56,18 +58,15 @@ const ChatbotUI = () => {
     if (selectedPanel) {
       const fetchConditions = async () => {
         try {
-          // Use type=conditions and pass the selected panel
           const res = await fetch(`/api/conditions?type=conditions&ageGroup=${selectedPatient}&bodyArea=${activeBodyArea}&panel=${selectedPanel}`);
           const data = await res.json();
           if (data.success) {
-            // Map the response to the format expected by TypingSelection { label, severity }
-            // The API returns { condition: "...", severity: "..." }
             const formattedConditions = data.data.map(c => ({
               label: c.condition,
-              severity: c.severity || 'normal' // Default to normal if severity is missing
+              severity: c.severity || 'normal'
             }));
             setConditions(formattedConditions);
-            setSelectedCondition(null); // Reset condition when panel changes
+            setSelectedCondition(null);
           }
         } catch (error) {
           console.error("Failed to fetch conditions", error);
@@ -78,14 +77,12 @@ const ChatbotUI = () => {
   }, [selectedPanel, selectedPatient, activeBodyArea]);
 
   useEffect(() => {
-    // Reset to centered state and movement flag whenever the modal closes.
     if (!show3D) {
       setModelCentered(true);
       setHasMoved(false);
       setSelectedPanel(null);
       setSelectedCondition(null);
     } else {
-      // Auto-move the model to the left after a short delay to reveal the panel selection
       const timer = setTimeout(() => {
         setModelCentered(false);
         setHasMoved(true);
@@ -94,26 +91,13 @@ const ChatbotUI = () => {
     }
   }, [show3D]);
 
-  // overlay placement can be tuned per-patient so the small cardiac icon sits over the heart
-  const overlayPosition = selectedPatient === 'adult'
-    ? { left: '52%', top: '38%', transform: 'translate(-50%, -50%)' }
-    : { left: '50%', top: '44%', transform: 'translate(-50%, -50%)' };
-
-  // place the breast control to the right side of the image area so it doesn't overlap
-  const overlayPositionBreast = selectedPatient === 'adult'
-    ? { right: '12%', top: '48%', transform: 'translateY(-50%)' }
-    : { right: '10%', top: '50%', transform: 'translateY(-50%)' };
-
   const handleStart = () => {
     setIsStarted(true);
   };
 
   const handlePatientSelect = (type) => {
     setSelectedPatient(type);
-    // After 1.5 seconds, transition to body area selection
-    setTimeout(() => {
-      setShowBodyArea(true);
-    }, 1500);
+    setShowBodyArea(true);
   };
 
   const handleBack = () => {
@@ -138,6 +122,7 @@ const ChatbotUI = () => {
       }
     }
   };
+
   const handleScenarioSelect = async (scenario) => {
     setSelectedScenario(scenario);
     setLoadingResults(true);
@@ -145,9 +130,6 @@ const ChatbotUI = () => {
       const res = await fetch(`/api/conditions?type=results&ageGroup=${selectedPatient}&bodyArea=${activeBodyArea}&scenarioId=${encodeURIComponent(scenario.scenario_id)}`);
       const data = await res.json();
       if (data.success) {
-        // Filter and process results
-        // User wants 4 "Usually Appropriate" and 4 "May Be Appropriate"
-        // Map DB values to UI categories
         const processed = data.data.map(item => {
           let app = 'unknown';
           const lowerApp = item.appropriate ? item.appropriate.toLowerCase() : '';
@@ -190,10 +172,8 @@ const ChatbotUI = () => {
 
   const handleToggleNotAppropriate = () => {
     if (showNotAppropriate) {
-      // Hide them
       setResults([...allFetchedResults.usually, ...allFetchedResults.maybe]);
     } else {
-      // Show them
       setResults([...allFetchedResults.usually, ...allFetchedResults.maybe, ...allFetchedResults.rarely]);
     }
     setShowNotAppropriate(!showNotAppropriate);
@@ -216,35 +196,77 @@ const ChatbotUI = () => {
   };
 
   return (
-    <BackgroundPaths>
+    <div className="min-h-screen w-full relative overflow-hidden font-sans text-black">
       {!isStarted ? (
-        <div className="h-screen flex flex-col items-center justify-start pt-50 overflow-hidden">
-          <GooeyText
-            texts={["Hi", "Welcome", "to", "Smart", "Referral", "System"]}
-            morphTime={1}
-            cooldownTime={0.25}
-            className="font-bold text-4xl mb-25"
-          />
-          <div className="flex flex-col items-center gap-20">
-            <p className="font-semibold text-5xl tracking-wide text-gradient bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">How's your patient today?</p>
-            <StartChatButton onClick={handleStart} />
+        <div className="bg-[#fafafa] h-screen w-full flex items-center justify-between px-20">
+          <div className="flex flex-col items-start gap-6 z-10 max-w-4xl">
+            <div className="flex flex-col items-start w-full -space-y-6 mb-2">
+              <motion.div
+                animate={{
+                  scale: [1, 1.1, 1.1, 1.1, 1, 1],
+                  opacity: [0.8, 1, 1, 1, 0.8, 0.8]
+                }}
+                transition={{
+                  duration: 9,
+                  times: [0, 0.11, 0.22, 0.78, 0.89, 1],
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="origin-left"
+              >
+                <GooeyText
+                  texts={["WELCOME", "WELCOME", "WELCOME"]}
+                  morphTime={3}
+                  cooldownTime={1}
+                  blurAmount={10}
+                  alignment="left"
+                  className="font-bold h-36 w-full"
+                  textClassName="text-7xl md:text-8xl text-black tracking-tighter"
+                />
+              </motion.div>
+
+              <motion.div
+                animate={{
+                  scale: [1, 1, 1.1, 1.1, 1.1, 1],
+                  opacity: [0.8, 0.8, 1, 1, 1, 0.8]
+                }}
+                transition={{
+                  duration: 9,
+                  times: [0, 0.11, 0.22, 0.78, 0.89, 1],
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="origin-left"
+              >
+                <GooeyText
+                  texts={["CLINICIAN", "CLINICIAN", "CLINICIAN"]}
+                  morphTime={3}
+                  cooldownTime={1}
+                  blurAmount={10}
+                  alignment="left"
+                  className="font-bold h-36 w-full"
+                  textClassName="text-7xl md:text-8xl text-black tracking-tighter"
+                />
+              </motion.div>
+            </div>
+            <div className="flex flex-col items-center w-full gap-8">
+              <p className="font-semibold text-4xl tracking-wide text-black text-center leading-tight">
+                How's your patient today?
+              </p>
+              <StartChatButton onClick={handleStart} />
+            </div>
+          </div>
+          <div className="flex-1 h-full flex items-center justify-center relative">
+            <img
+              src="/photo/transparenbody.png"
+              alt="Medical Illustration"
+              className="object-contain max-h-[90vh] w-auto"
+            />
           </div>
         </div>
       ) : (
-        <div className="h-screen w-screen flex items-center justify-between gap-20 px-40 pr-20 overflow-hidden">
-          <div className="flex items-center h-full">
-            <GooeyText
-              texts={["Hi", "Welcome", "to", "Smart", "Referral", "System"]}
-              morphTime={1}
-              cooldownTime={0.25}
-              className="font-bold text-4xl [writing-mode:vertical-lr] rotate-180"
-            />
-          </div>
-
-          {/* Main Content Area */}
-          <div className="relative w-[1200px] h-[630px] dark-hero-background rounded-3xl transition-all duration-500 ease-in-out flex flex-col items-center justify-center pt-8">
-
-            {/* Results View */}
+        <div className="bg-white h-screen w-screen flex items-center justify-center overflow-hidden relative">
+          <div className="relative w-full max-w-[1400px] h-full flex flex-col items-center justify-center">
             {showResults ? (
               <div className="absolute inset-0 flex flex-col p-8 animate-[fadeIn_0.5s_ease-in-out] text-black">
                 <button
@@ -258,12 +280,8 @@ const ChatbotUI = () => {
                   <h2 className="text-5xl font-handwritten mb-12 tracking-wider">RESULTS</h2>
 
                   <div className="w-full flex flex-row gap-12 h-full px-12">
-                    {/* Chart Area */}
                     <div className="flex-1 flex flex-col relative border-l-2 border-b-2 border-black/50 p-4">
-                      {/* Y-axis label */}
                       <div className="absolute -left-32 top-0 text-sm -rotate-90 origin-right">appropriate lvl</div>
-
-                      {/* Bars */}
                       <div className="flex flex-col gap-6 w-full mt-auto mb-8 overflow-y-auto max-h-96 pr-2 custom-scrollbar">
                         {results.map((item, index) => (
                           <div key={index} className="flex flex-col gap-1">
@@ -281,8 +299,6 @@ const ChatbotUI = () => {
                           </div>
                         ))}
                       </div>
-
-                      {/* X-axis */}
                       <div className="flex justify-between w-full text-lg font-handwritten mt-2 px-2">
                         <span>0</span>
                         <span>1</span>
@@ -292,7 +308,6 @@ const ChatbotUI = () => {
                       </div>
                     </div>
 
-                    {/* Legend and Buttons */}
                     <div className="w-1/3 flex flex-col gap-8 justify-center items-end">
                       <div className="flex flex-col gap-4 mb-8">
                         <div className="flex items-center gap-3">
@@ -335,7 +350,6 @@ const ChatbotUI = () => {
                   <h2 className="text-4xl font-bold text-black mb-8">Choose your scenario</h2>
 
                   <div className="flex w-full gap-8 h-full">
-                    {/* Left side: Visual (Circle/Model placeholder as per sketch) */}
                     <div className="w-1/3 flex items-center justify-center">
                       <div className="w-64 h-64 rounded-full bg-gray-200/50 border-2 border-white/50 flex items-center justify-center overflow-hidden relative">
                         <ModelViewer
@@ -347,7 +361,6 @@ const ChatbotUI = () => {
                       </div>
                     </div>
 
-                    {/* Right side: Scenario Table */}
                     <div className="w-2/3 overflow-y-auto pr-4 custom-scrollbar">
                       <table className="w-full border-collapse">
                         <thead>
@@ -374,101 +387,128 @@ const ChatbotUI = () => {
                 </div>
               </div>
             ) : (
-              // Existing Views (Patient Selection or Body/Panel/Condition)
               !showBodyArea ? (
                 <>
-                  <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 ${selectedPatient ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-                    <p className="text-black text-5xl font-semibold pt-15">Who's your patient today?</p>
-                    <div className="flex justify-center items-top w-full gap-50 mt-13 flex-1">
-                      <div className="flex flex-col items-center cursor-pointer" onClick={() => handlePatientSelect('adult')}>
-                        <img src="/photo/adult.png" alt="Adult" className="h-86 object-contain bg-transparent hover:scale-105 transition-transform" />
-                        <p className="text-black text-3xl font-semibold mt-4">Adult</p>
-                      </div>
-                      <div className="flex flex-col items-center cursor-pointer" onClick={() => handlePatientSelect('child')}>
-                        <img src="/photo/child.png" alt="Child" className="h-70 object-contain bg-transparent mt-17 hover:scale-105 transition-transform" />
-                        <p className="text-black text-3xl font-semibold mt-4">Child</p>
-                      </div>
+                  <div className={`absolute inset-0 flex flex-col items-center justify-center bg-white transition-opacity duration-1000 ${selectedPatient ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                    <div className="mb-16 h-32 w-full flex justify-center -mt-10">
+                      <HandWrittenTitle
+                        title="PATIENT TYPE"
+                        subtitle=""
+                      />
                     </div>
-                  </div>
 
-                  {selectedPatient && (
-                    <div className="absolute inset-0 flex items-center justify-center animate-[slideToCenter_0.5s_ease-out_forwards]">
-                      {/* Back button on the preview so user can undo selection immediately */}
-                      <button
-                        onClick={handleBack}
-                        aria-label="Back"
-                        className="absolute left-6 top-6 text-black bg-white/80 hover:bg-white px-3 py-1 rounded-full shadow-md z-30 transition-transform hover:scale-105"
+                    <div className="flex justify-center items-center gap-20">
+                      <div
+                        className="flex flex-col items-center gap-8 cursor-pointer hover:scale-105 transition-all duration-300 w-[400px]"
+                        onClick={() => handlePatientSelect('adult')}
                       >
-                        &lt;
-                      </button>
-                      <div className="flex flex-col items-center scale-125">
-                        <img
-                          src={selectedPatient === 'adult' ? "/photo/adult.png" : "/photo/child.png"}
-                          alt={selectedPatient === 'adult' ? "Adult" : "Child"}
-                          className="h-86 object-contain bg-transparent"
-                        />
-                        <p className="text-black text-4xl font-semibold mt-4">
-                          {selectedPatient === 'adult' ? 'Adult' : 'Child'}
-                        </p>
+                        <div className="bg-gray-100/80 rounded-full w-72 h-72 flex items-center justify-center mb-2 shadow-lg">
+                          <img src="/photo/adult.png" alt="Adult" className="h-64 object-contain" />
+                        </div>
+                        <p className="text-black text-4xl font-bold tracking-wider">ADULT</p>
+                        <p className="text-gray-400 text-xl font-medium mt-[-1.5rem]">(18+)</p>
+                      </div>
+
+                      <div
+                        className="flex flex-col items-center gap-8 cursor-pointer hover:scale-105 transition-all duration-300 w-[400px]"
+                        onClick={() => handlePatientSelect('child')}
+                      >
+                        <div className="bg-gray-100/80 rounded-full w-72 h-72 flex items-center justify-center mb-2 shadow-lg">
+                          <img src="/photo/child.png" alt="Child" className="h-56 object-contain mt-4" />
+                        </div>
+                        <p className="text-black text-4xl font-bold tracking-wider">CHILDREN</p>
+                        <p className="text-gray-400 text-xl font-medium mt-[-1.5rem]">(Under 18)</p>
                       </div>
                     </div>
-                  )}
+
+                    <div className="w-full -mt-10 mb-2 z-0 pointer-events-none">
+                      <ECGLine className="opacity-60" />
+                    </div>
+
+                    <p className="text-gray-500 text-2xl font-medium relative z-10 -mt-12">Please select patient age group.</p>
+                  </div>
                 </>
               ) : (
-                <div className="absolute inset-0 flex flex-col animate-[fadeIn_0.5s_ease-in-out]">
-                  {/* scene 3 - hide the underlying content when 3D modal is open */}
+                <div className="absolute inset-0 flex flex-col animate-[fadeIn_0.5s_ease-in-out] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
                   {!show3D && (
-                    <>
-                      <div className="flex items-center gap-3 p-6">
-                        <button onClick={handleBack} className="text-black text-3xl font-bold hover:scale-110 transition-transform">
-                          &lt;
-                        </button>
-                        <p className="text-black text-2xl font-semibold">
-                          {selectedPatient === 'adult' ? 'Adult' : 'Child'}
-                        </p>
+                    <div className="flex flex-col w-full h-full relative">
+                      {/* Header */}
+                      <div className="w-full flex justify-center mt-4 mb-2 h-32 shrink-0 z-10">
+                        <HandWrittenTitle title="CHOOSE BODY AREA" subtitle="" />
                       </div>
-                      <div className="flex items-start justify-center -mt-6">
-                        <p className="text-black text-5xl font-semibold">Choose the body area.</p>
-                      </div>
-                      <div className="relative flex items-center justify-center flex-1 w-full">
-                        {/* Cardiac image (acts as a visual) */}
-                        <div className="relative w-full h-full flex items-center justify-center">
-                          <img
-                            src={selectedPatient === 'adult' ? "/photo/ad cardiac.jpg" : "/photo/child cardiac.jpg"}
-                            alt={selectedPatient === 'adult' ? "Adult Cardiac" : "Child Cardiac"}
-                            className="h-117 object-contain"
-                            aria-hidden={true}
-                          />
 
-                          {/* small cardiac icon overlay acts as the single control */}
-                          <img
-                            src="/photo/cardiac.jpg"
-                            alt="Open 3D cardiac model"
-                            className="absolute w-16 h-16 object-contain cursor-pointer z-30"
-                            style={overlayPosition}
-                            role="button"
-                            tabIndex={0}
-                            onClick={(e) => { e.stopPropagation(); setSelectedModelSrc('/3d-model/stylizedhumanheart.glb'); setActiveBodyArea('cardiac'); setShow3D(true); }}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedModelSrc('/3d-model/stylizedhumanheart.glb'); setActiveBodyArea('cardiac'); setShow3D(true); } }}
-                            aria-label="Open 3D cardiac model"
-                          />
+                      {/* Main Content */}
+                      <div className="flex flex-1 w-full max-w-[1400px] mx-auto px-12 gap-16 items-center justify-center h-full pb-8 z-10">
 
-                          {/* Breast control: opens the female breast anatomy model */}
+                        {/* Left: Body Image Card */}
+                        <div className="w-[50%] h-full flex items-center justify-center relative -mt-10 overflow-hidden">
                           <button
-                            className="absolute w-20 h-10 flex items-center justify-center rounded-md bg-white/95 shadow-md cursor-pointer z-30"
-                            style={overlayPositionBreast}
-                            onClick={(e) => { e.stopPropagation(); setSelectedModelSrc('/3d-model/human_female_breast_anatomy.glb'); setActiveBodyArea('breast'); setShow3D(true); }}
-                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedModelSrc('/3d-model/human_female_breast_anatomy.glb'); setActiveBodyArea('breast'); setShow3D(true); } }}
-                            aria-label="Open 3D breast anatomy model"
+                            onClick={handleBack}
+                            className="absolute top-8 left-8 text-black text-3xl font-bold hover:scale-110 transition-transform z-20 bg-white/50 rounded-full w-12 h-12 flex items-center justify-center backdrop-blur-sm shadow-sm"
+                            aria-label="Back"
                           >
-                            <span className="text-sm font-semibold text-slate-800">Breast</span>
+                            &lt;
                           </button>
+
+                          <img
+                            src={selectedPatient === 'adult' ? "/photo/humanbody.png" : "/photo/humanbodychild.png"}
+                            alt="Body Reference"
+                            className="h-[120%] w-full object-contain scale-[1.35] relative z-0"
+                          />
+                        </div>
+
+                        {/* Right: Grid Selection */}
+                        <div className="w-[50%] h-full flex items-center justify-center pl-4">
+                          <div className="grid grid-cols-5 gap-3 w-full">
+                            {[
+                              { name: 'Abdomen' },
+                              { name: 'Breast', action: 'breast', model: '/3d-model/human_female_breast_anatomy.glb' },
+                              { name: 'Cardiac', action: 'cardiac', model: '/3d-model/stylizedhumanheart.glb', image: '/photo/cardiac.jpg', subtitle: '(Heart)' },
+                              { name: 'Chest' },
+                              { name: 'Extremities' },
+                              { name: 'Head' },
+                              { name: 'Lower Extremity' },
+                              { name: 'Maxface' },
+                              { name: 'Neck' },
+                              { name: 'Pelvis' },
+                              { name: 'Spine' },
+                              { name: 'Unspecified' },
+                              { name: 'Upper Extremity' }
+                            ].map((item, index) => (
+                              <div
+                                key={index}
+                                className={`aspect-square bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer group hover:shadow-md hover:scale-105 hover:border-blue-400 hover:bg-blue-50/30 p-1 relative overflow-hidden ${item.action ? '' : 'opacity-100'}`}
+                                onClick={(e) => {
+                                  if (item.action) {
+                                    e.stopPropagation();
+                                    setSelectedModelSrc(item.model);
+                                    setActiveBodyArea(item.action);
+                                    setShow3D(true);
+                                  }
+                                }}
+                              >
+                                {/* Clinical Accent - Static for all */}
+                                <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
+
+                                {item.image ? (
+                                  <>
+                                    <img src={item.image} alt={item.name} className="w-12 h-12 object-contain group-hover:scale-110 transition-transform mix-blend-multiply" />
+                                    <div className="flex flex-col items-center leading-tight z-10">
+                                      <span className="font-bold text-sm text-slate-800 uppercase tracking-tight">{item.name}</span>
+                                      {item.subtitle && <span className="font-medium text-[10px] text-slate-500">{item.subtitle}</span>}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <span className="font-bold text-sm text-slate-700 text-center uppercase break-words px-1 tracking-tight group-hover:text-slate-900">{item.name}</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
 
-                  {/* 3D model overlay (animated) - rendered independently so it's not shown with the underlying content */}
                   <AnimatePresence>
                     {show3D && (
                       <motion.div
@@ -481,8 +521,6 @@ const ChatbotUI = () => {
                       >
                         <motion.div
                           className="relative w-3/5 h-4/5 bg-transparent flex items-center justify-center rounded-lg shadow-none"
-                          // allow children to overflow (frame should not be clipped) and
-                          // nudge the whole overlay slightly left for visual alignment
                           style={{ overflow: 'visible', transform: 'translateX(-6%)' }}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
@@ -497,13 +535,11 @@ const ChatbotUI = () => {
                             ✕
                           </button>
 
-                          {/* Animated model container: starts centered & enlarged, stays 2s, then moves left and scales down */}
                           <motion.div
                             className="w-full h-full flex items-center justify-center p-4"
                             initial={{ x: 0, scale: 1.35 }}
                             animate={modelCentered ? { x: 0, scale: 1.35 } : { x: '-30%', scale: 0.95 }}
                             transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-
                           >
                             <div className="heart-wrapper" style={{ width: '86%', height: '86%' }}>
                               <ModelViewer
@@ -511,8 +547,6 @@ const ChatbotUI = () => {
                                 alt="3D Cardiac Model"
                                 cameraControls={true}
                                 onUserInteract={(info) => {
-                                  // Do not call preventDefault here so the webcomponent
-                                  // still receives pointer drag events and can rotate.
                                   if (info && info.type === 'pointerup' && !hasMoved) {
                                     setIsMoving(true);
                                     setModelCentered(false);
@@ -524,16 +558,13 @@ const ChatbotUI = () => {
                             </div>
                           </motion.div>
                         </motion.div>
-                        {/* Right-side selection panel (appears after model has moved) */}
                         {hasMoved && (
-                          // move the panel closer (left) but keep a safe gap from the frame
                           <div
                             className="absolute top-1/2 transform -translate-y-1/2 w-96 z-50 flex flex-col gap-4"
-                            // position the panel with a comfortable 1rem gap from the frame
                             style={{ right: '1rem', boxShadow: 'none' }}
                           >
                             <TypingSelection
-                              className="typing-panel-dark"
+                              className="premium-glass-panel"
                               text={"Choose the panel"}
                               options={panels.map(p => ({ label: p }))}
                               showHeader={true}
@@ -545,7 +576,7 @@ const ChatbotUI = () => {
 
                             {selectedPanel && (
                               <TypingSelection
-                                className="typing-panel-dark mt-4"
+                                className="premium-glass-panel mt-4"
                                 text={"Choose the condition"}
                                 options={conditions}
                                 showHeader={true}
@@ -574,11 +605,10 @@ const ChatbotUI = () => {
                 </div>
               )
             )}
-          </div>
-        </div>
-      )
-      }
-    </BackgroundPaths >
+          </div >
+        </div >
+      )}
+    </div >
   );
 };
 

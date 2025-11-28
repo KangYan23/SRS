@@ -51,9 +51,9 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
         lp.as = 'image';
         document.head.appendChild(lp);
       }
-    } catch (_) {}
+    } catch (_) { }
 
-    return () => {};
+    return () => { };
   }, []);
 
   // Update the web component attributes/properties and attach listeners.
@@ -70,9 +70,9 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
       el.setAttribute("alt", alt);
       if (cameraControls) {
         // Ensure persistent camera controls when requested by the parent.
-        try { el.setAttribute("camera-controls", ""); el.cameraControls = true; } catch(_) {}
+        try { el.setAttribute("camera-controls", ""); el.cameraControls = true; } catch (_) { }
       } else {
-        try { el.removeAttribute('camera-controls'); el.cameraControls = false; } catch(_) {}
+        try { el.removeAttribute('camera-controls'); el.cameraControls = false; } catch (_) { }
       }
       el.setAttribute("auto-rotate", "");
       el.setAttribute("rotation-per-second", String(rotationPerSecond));
@@ -85,12 +85,12 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
       try {
         el.src = src;
         el.alt = alt;
-        try { el.cameraControls = Boolean(cameraControls); } catch(_) {}
+        try { el.cameraControls = Boolean(cameraControls); } catch (_) { }
         el.autoRotate = true;
         el.rotationPerSecond = Number(rotationPerSecond);
         el.exposure = 1;
         el.shadowIntensity = 1;
-        try { el.interactionPrompt = 'none'; } catch (_) {}
+        try { el.interactionPrompt = 'none'; } catch (_) { }
       } catch (propErr) {
         // ignore property set errors
       }
@@ -105,10 +105,10 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
     let onEnter, onLeave;
     const wantHover = typeof interactiveOnHover !== 'undefined' ? interactiveOnHover : true;
     if (cameraControls) {
-      try { el.setAttribute('camera-controls', ''); el.cameraControls = true; } catch(_) {}
+      try { el.setAttribute('camera-controls', ''); el.cameraControls = true; } catch (_) { }
     } else if (wantHover) {
-      onEnter = () => { try { el.setAttribute('camera-controls', ''); el.cameraControls = true; } catch (e) {} };
-      onLeave = () => { try { el.removeAttribute('camera-controls'); el.cameraControls = false; } catch (e) {} };
+      onEnter = () => { try { el.setAttribute('camera-controls', ''); el.cameraControls = true; } catch (e) { } };
+      onLeave = () => { try { el.removeAttribute('camera-controls'); el.cameraControls = false; } catch (e) { } };
       el.addEventListener('pointerenter', onEnter);
       el.addEventListener('pointerleave', onLeave);
     }
@@ -117,7 +117,7 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
     // still allowing single-pointer rotation. We add non-passive listeners so
     // we can call preventDefault().
     const wheelHandler = (ev) => {
-      try { ev.preventDefault(); ev.stopPropagation(); } catch (_) {}
+      try { ev.preventDefault(); ev.stopPropagation(); } catch (_) { }
     };
     const touchStartHandler = (ev) => {
       try {
@@ -125,14 +125,14 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
         if (ev.touches && ev.touches.length > 1) {
           ev.preventDefault();
         }
-      } catch (_) {}
+      } catch (_) { }
     };
-    const gestureHandler = (ev) => { try { ev.preventDefault(); } catch (_) {} };
+    const gestureHandler = (ev) => { try { ev.preventDefault(); } catch (_) { } };
 
     try {
       // model-viewer emits a 'load' event when the model finished loading
       let loadedHandler = null;
-      loadedHandler = () => { try { setModelLoaded(true); } catch(_) {} };
+      loadedHandler = () => { try { setModelLoaded(true); } catch (_) { } };
       el.addEventListener('load', loadedHandler);
       // Add listeners on the element
       // Add listeners on the element in the capture phase to intercept
@@ -150,8 +150,8 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
       let _pd = null;
       let _pu = null;
       if (onUserInteract && typeof onUserInteract === 'function') {
-        _pd = (ev) => { try { onUserInteract({ type: 'pointerdown', originalEvent: ev }); } catch(_) {} };
-        _pu = (ev) => { try { onUserInteract({ type: 'pointerup', originalEvent: ev }); } catch(_) {} };
+        _pd = (ev) => { try { onUserInteract({ type: 'pointerdown', originalEvent: ev }); } catch (_) { } };
+        _pu = (ev) => { try { onUserInteract({ type: 'pointerup', originalEvent: ev }); } catch (_) { } };
         el.addEventListener('pointerdown', _pd, { capture: true });
         el.addEventListener('pointerup', _pu, { capture: true });
       }
@@ -164,25 +164,25 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
         window.addEventListener('gesturestart', gestureHandler, { capture: true });
         window.addEventListener('gesturechange', gestureHandler, { capture: true });
       }
-    } catch (_) {}
+    } catch (_) { }
 
     // Cleanup listeners when effect re-runs or component unmounts
     return () => {
       try {
         if (onEnter) el.removeEventListener('pointerenter', onEnter);
         if (onLeave) el.removeEventListener('pointerleave', onLeave);
-        try { if (typeof loadedHandler === 'function') el.removeEventListener('load', loadedHandler); } catch(_) {}
-        try { el.removeEventListener('wheel', wheelHandler, { capture: true }); } catch (_) {}
-        try { el.removeEventListener('touchstart', touchStartHandler, { capture: true }); } catch (_) {}
-        try { el.removeEventListener('gesturestart', gestureHandler, { capture: true }); } catch (_) {}
-        try { el.removeEventListener('gesturechange', gestureHandler, { capture: true }); } catch (_) {}
-        try { if (_pd) el.removeEventListener('pointerdown', _pd, { capture: true }); } catch (_) {}
-        try { if (_pu) el.removeEventListener('pointerup', _pu, { capture: true }); } catch (_) {}
-        try { window.removeEventListener('wheel', wheelHandler, { capture: true }); } catch (_) {}
-        try { window.removeEventListener('touchstart', touchStartHandler, { capture: true }); } catch (_) {}
-        try { window.removeEventListener('gesturestart', gestureHandler, { capture: true }); } catch (_) {}
-        try { window.removeEventListener('gesturechange', gestureHandler, { capture: true }); } catch (_) {}
-      } catch (_) {}
+        try { if (typeof loadedHandler === 'function') el.removeEventListener('load', loadedHandler); } catch (_) { }
+        try { el.removeEventListener('wheel', wheelHandler, { capture: true }); } catch (_) { }
+        try { el.removeEventListener('touchstart', touchStartHandler, { capture: true }); } catch (_) { }
+        try { el.removeEventListener('gesturestart', gestureHandler, { capture: true }); } catch (_) { }
+        try { el.removeEventListener('gesturechange', gestureHandler, { capture: true }); } catch (_) { }
+        try { if (_pd) el.removeEventListener('pointerdown', _pd, { capture: true }); } catch (_) { }
+        try { if (_pu) el.removeEventListener('pointerup', _pu, { capture: true }); } catch (_) { }
+        try { window.removeEventListener('wheel', wheelHandler, { capture: true }); } catch (_) { }
+        try { window.removeEventListener('touchstart', touchStartHandler, { capture: true }); } catch (_) { }
+        try { window.removeEventListener('gesturestart', gestureHandler, { capture: true }); } catch (_) { }
+        try { window.removeEventListener('gesturechange', gestureHandler, { capture: true }); } catch (_) { }
+      } catch (_) { }
     };
   }, [src, alt, rotationPerSecond, interactiveOnHover, cameraControls, onUserInteract]);
 
@@ -197,7 +197,7 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
     function loop() {
       angle = (angle + 1.8) % 360;
       if (ref && !modelLoaded) {
-        try { ref.style.transform = `rotateY(${angle}deg)`; } catch (_) {}
+        try { ref.style.transform = `rotateY(${angle}deg)`; } catch (_) { }
         rafId = requestAnimationFrame(loop);
       }
     }
@@ -205,7 +205,7 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
       rafId = requestAnimationFrame(loop);
     }
     if (modelLoaded && ref) {
-      try { ref.style.transform = 'none'; } catch (_) {}
+      try { ref.style.transform = 'none'; } catch (_) { }
     }
     return () => { if (rafId) cancelAnimationFrame(rafId); };
   }, [modelLoaded]);
@@ -322,7 +322,7 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
       {!modelLoaded && (
         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
           <div style={{ width: 48, height: 48, borderRadius: 24, background: 'rgba(255,255,255,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 18v4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M4.93 4.93l2.83 2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M16.24 16.24l2.83 2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 12h4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M18 12h4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M4.93 19.07l2.83-2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M16.24 7.76l2.83-2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M12 18v4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M4.93 4.93l2.83 2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M16.24 16.24l2.83 2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M2 12h4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M18 12h4" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M4.93 19.07l2.83-2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M16.24 7.76l2.83-2.83" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </div>
         </div>
       )}
