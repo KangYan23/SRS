@@ -301,17 +301,19 @@ const ChatbotUI = () => {
                                   }`}
                                 style={{ width: `${Math.max((item.score / 10) * 100, 1)}%` }}
                               ></div>
-                              <span className="text-xs text-black/70">...</span>
+                              <span className="text-sm font-medium text-black/80 ml-2">{item.radiationString || item.score}</span>
                             </div>
                             <span className="text-sm text-black/90">{item.name}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="flex justify-between w-full text-lg font-handwritten mt-2 px-2">
+                      <div className="flex justify-between w-full text-sm font-handwritten mt-2 px-2">
                         <span>0</span>
-                        <span>1</span>
                         <span>2</span>
-                        <span>3</span>
+                        <span>4</span>
+                        <span>6</span>
+                        <span>8</span>
+                        <span>10</span>
                         <span className="text-xs self-end mb-1">radiation lvl</span>
                       </div>
                     </div>

@@ -39,18 +39,27 @@ export default async function handler(req, res) {
                     const ageStr = doc.age || doc.Age;
                     if (!ageStr || typeof ageStr !== 'string') return false;
 
-                    // Parse "18 - 150" or "18 Male Only" or "0 - 18"
-                    // Just find the first number as the start age
-                    const matches = ageStr.match(/(\d+)/);
-                    if (!matches) return false;
-
-                    const startAge = parseInt(matches[1], 10);
+                    // Parse age ranges like "10 - 60", "18 - 150", "0 - 18"
+                    const rangeMatch = ageStr.match(/(\d+)\s*-\s*(\d+)/);
+                    let startAge, endAge;
+                    
+                    if (rangeMatch) {
+                        // Age range found
+                        startAge = parseInt(rangeMatch[1], 10);
+                        endAge = parseInt(rangeMatch[2], 10);
+                    } else {
+                        // Single age or other format, try to extract first number
+                        const singleMatch = ageStr.match(/(\d+)/);
+                        if (!singleMatch) return false;
+                        startAge = parseInt(singleMatch[1], 10);
+                        endAge = startAge; // Assume single age applies to that age only
+                    }
 
                     if (ageGroup === 'adult') {
-                        // User rule: 18 above is adult
-                        return startAge >= 18;
+                        // Include if the age range includes adults (18+)
+                        return endAge >= 18;
                     } else if (ageGroup === 'child') {
-                        // User rule: under 18 is child
+                        // Include if the age range includes children (<18)
                         return startAge < 18;
                     }
                     return true;
@@ -172,7 +181,8 @@ export default async function handler(req, res) {
                                     name: proc.procedure_name,
                                     appropriate: proc.appropriateness_category,
                                     radiation: radiationScore,
-                                    score: radiationScore
+                                    score: radiationScore,
+                                    radiationString: radiationStr
                                 });
                             });
                         }
