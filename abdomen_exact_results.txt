@@ -1,0 +1,92 @@
+Total documents with Body Area = "Abdomen" (exact): 229
+
+Panel: "Gastrointestinal"
+  Documents: 116
+  Conditions (28):
+    - Abdominal mass
+    - Abdominal wall hernia
+    - Abdominal wall mass
+    - Abnormal liver function tests
+    - Liver abscess
+    - Bariatric procedure
+    - Chronic pancreatitis
+    - Crohn disease
+    - Epigastric pain
+    - Gastric adenocarcinoma
+    - Jaundice
+    - Liver disease
+    - Liver lesion
+    - Liver transplant
+    - LLQ pain
+    - LUQ pain
+    - Pancreas cyst
+    - Pancreas duct dilation
+    - Pancreatic ductal adenocarcinoma screening
+    - Pancreatic ductal adenocarcinoma
+    - Pancreatitis necrotizing
+    - Pancreatitis
+    - Primary liver cancer
+    - RLQ pain
+    - RUQ pain
+    - Sepsis
+    - Small bowel obstruction
+    - Upper GI bleeding
+
+Panel: "Interventional Radiology"
+  Documents: 11
+  Conditions (5):
+    - Cholangiocarcinoma
+    - Hepatocellular Carcinoma (HCC)
+    - Iliocaval disease suspected
+    - Iliocaval disease
+    - Metastatic Liver Disease
+
+Panel: "Musculoskeletal"
+  Documents: 13
+  Conditions (3):
+    - Primary soft tissue tumor
+    - Soft tissue infection
+    - Soft tissue mass
+
+Panel: "Pediatric"
+  Documents: 30
+  Conditions (9):
+    - Abdominal pain
+    - Crohn disease
+    - Hemangioma
+    - Necrotizing enterocolitis
+    - Physical abuse
+    - Vascular malformation  on US
+    - Vascular malformation
+    - Vascular tumor
+    - Vomiting
+
+Panel: "Systemic Oncology"
+  Documents: 22
+  Conditions (2):
+    - Cutaneous melanoma
+    - Muco-cutaneous melanoma
+
+Panel: "Thoracic"
+  Documents: 2
+  Conditions (1):
+    - Sepsis
+
+Panel: "Urologic"
+  Documents: 24
+  Conditions (7):
+    - Adrenal mass
+    - HTN
+    - Renal cell cancer carcinoma
+    - Renal cell carcinoma
+    - Renal failure
+    - Renal mass
+    - Sepsis
+
+Panel: "Vascular"
+  Documents: 11
+  Conditions (3):
+    - HTN
+    - Iliocaval disease
+    - Upper GI bleeding
+

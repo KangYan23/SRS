@@ -1,0 +1,24 @@
+Abdomen
+Abdomen-pelvis
+Breast
+Cardiac
+Cardiac-chest
+Chest
+Chest-abdomen
+Chest-abdomen-pelvis
+Extremities
+Head
+Head-neck
+Head-neck-chest-abdomen
+Head-spine
+Lower extremity
+Maxface
+Neck
+Neck-chest
+Neck-chest-abdomen-pelvis
+Pelvis
+Spine
+Spine-pelvis
+Unspecified
+Upper extremity
+cardiac-chest-pelvis

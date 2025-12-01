@@ -43,7 +43,7 @@ export function TypingSelection({
         </motion.p>
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
         <AnimatePresence mode="wait">
           {showOptions && options.map((opt, i) => {
             const selected = selectedIndex === i;

@@ -214,7 +214,7 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
   // paint; also render a small loading overlay until the model has been
   // reported loaded by the web component. We set a `poster` so a low-res image
   // appears while the GLB downloads, minimizing perceived lag.
-  const fallbackImage = src.replace(/\.gltf?$|\.glb$/i, ".jpg");
+  const fallbackImage = src ? src.replace(/\.gltf?$|\.glb$/i, ".jpg") : null;
   // Add a subtle lighter backdrop behind the model so the heart sits on a lighter panel
   const backdropStyle = {
     position: 'absolute',
@@ -285,6 +285,33 @@ export default function ModelViewer({ src = "/3d-model/stylizedhumanheart.glb", 
     boxShadow: '0 8px 28px rgba(6,182,212,0.45)',
     pointerEvents: 'none',
   };
+
+  // If no src is provided, show a placeholder
+  if (!src) {
+    return (
+      <div style={{ width: mergedStyle.width, height: mergedStyle.height, position: 'relative', overflow: 'visible', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9998 }}>
+        <div style={{ 
+          width: '100%', 
+          height: '100%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          background: 'rgba(255,255,255,0.1)',
+          borderRadius: '12px',
+          border: '2px dashed rgba(0,0,0,0.2)'
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            color: 'rgba(0,0,0,0.5)',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}>
+            No 3D Model Available
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     // eslint-disable-next-line react/no-unknown-property

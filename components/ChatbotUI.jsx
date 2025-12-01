@@ -58,15 +58,23 @@ const ChatbotUI = () => {
     if (selectedPanel) {
       const fetchConditions = async () => {
         try {
-          const res = await fetch(`/api/conditions?type=conditions&ageGroup=${selectedPatient}&bodyArea=${activeBodyArea}&panel=${selectedPanel}`);
+          const apiUrl = `/api/conditions?type=conditions&ageGroup=${selectedPatient}&bodyArea=${activeBodyArea}&panel=${selectedPanel}`;
+          console.log('Fetching conditions from:', apiUrl);
+          const res = await fetch(apiUrl);
           const data = await res.json();
+          console.log('API Response:', data);
           if (data.success) {
-            const formattedConditions = data.data.map(c => ({
-              label: c.condition,
-              severity: c.severity || 'normal'
-            }));
+            const formattedConditions = data.data
+              .filter(c => c.condition && c.condition !== 'placeholder')  // Filter out placeholder
+              .map(c => ({
+                label: c.condition,
+                severity: c.severity || 'normal'
+              }));
+            console.log('Formatted conditions:', formattedConditions);
             setConditions(formattedConditions);
             setSelectedCondition(null);
+          } else {
+            console.error('API returned error:', data);
           }
         } catch (error) {
           console.error("Failed to fetch conditions", error);
@@ -461,19 +469,30 @@ const ChatbotUI = () => {
                         <div className="w-[50%] h-full flex items-center justify-center pl-4">
                           <div className="grid grid-cols-5 gap-3 w-full">
                             {[
-                              { name: 'Abdomen' },
+                              { name: 'Abdomen', action: 'abdomen' },
+                              { name: 'Abdomen-Pelvis', action: 'abdomen-pelvis' },
                               { name: 'Breast', action: 'breast', model: '/3d-model/human_female_breast_anatomy.glb' },
                               { name: 'Cardiac', action: 'cardiac', model: '/3d-model/stylizedhumanheart.glb', image: '/photo/cardiac.jpg', subtitle: '(Heart)' },
-                              { name: 'Chest' },
-                              { name: 'Extremities' },
-                              { name: 'Head' },
-                              { name: 'Lower Extremity' },
-                              { name: 'Maxface' },
-                              { name: 'Neck' },
-                              { name: 'Pelvis' },
-                              { name: 'Spine' },
-                              { name: 'Unspecified' },
-                              { name: 'Upper Extremity' }
+                              { name: 'Cardiac-Chest', action: 'cardiac-chest' },
+                              { name: 'Cardiac-Chest-Pelvis', action: 'cardiac-chest-pelvis' },
+                              { name: 'Chest', action: 'chest' },
+                              { name: 'Chest-Abdomen', action: 'chest-abdomen' },
+                              { name: 'Chest-Abdomen-Pelvis', action: 'chest-abdomen-pelvis' },
+                              { name: 'Extremities', action: 'extremities' },
+                              { name: 'Head', action: 'head' },
+                              { name: 'Head-Neck', action: 'head-neck' },
+                              { name: 'Head-Neck-Chest-Abdomen', action: 'head-neck-chest-abdomen' },
+                              { name: 'Head-Spine', action: 'head-spine' },
+                              { name: 'Lower Extremity', action: 'lower extremity' },
+                              { name: 'Maxface', action: 'maxface' },
+                              { name: 'Neck', action: 'neck' },
+                              { name: 'Neck-Chest', action: 'neck-chest' },
+                              { name: 'Neck-Chest-Abdomen-Pelvis', action: 'neck-chest-abdomen-pelvis' },
+                              { name: 'Pelvis', action: 'pelvis' },
+                              { name: 'Spine', action: 'spine' },
+                              { name: 'Spine-Pelvis', action: 'spine-pelvis' },
+                              { name: 'Unspecified', action: 'unspecified' },
+                              { name: 'Upper Extremity', action: 'upper extremity' }
                             ].map((item, index) => (
                               <div
                                 key={index}
@@ -481,7 +500,8 @@ const ChatbotUI = () => {
                                 onClick={(e) => {
                                   if (item.action) {
                                     e.stopPropagation();
-                                    setSelectedModelSrc(item.model);
+                                    // Set model if provided, otherwise null
+                                    setSelectedModelSrc(item.model || null);
                                     setActiveBodyArea(item.action);
                                     setShow3D(true);
                                   }
@@ -528,6 +548,22 @@ const ChatbotUI = () => {
                           transition={{ duration: 0.32 }}
                         >
                           <button
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setShow3D(false);
+                              setActiveBodyArea(null);
+                              setSelectedPanel(null);
+                              setSelectedCondition(null);
+                              setPanels([]);
+                              setConditions([]);
+                            }}
+                            aria-label="Back to Body Area Selection"
+                            className="absolute top-4 left-4 z-50 text-black text-xl font-semibold hover:scale-105 transition-transform flex items-center gap-2 bg-white/90 rounded-full px-4 py-2 shadow-md"
+                          >
+                            &lt; Back
+                          </button>
+                          
+                          <button
                             onClick={(e) => { e.stopPropagation(); setShow3D(false); }}
                             aria-label="Close 3D"
                             className="absolute top-4 right-4 z-50 bg-white/90 rounded-full px-3 py-1 shadow-md hover:scale-105 transition-transform"
@@ -542,19 +578,32 @@ const ChatbotUI = () => {
                             transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
                           >
                             <div className="heart-wrapper" style={{ width: '86%', height: '86%' }}>
-                              <ModelViewer
-                                src={selectedModelSrc}
-                                alt="3D Cardiac Model"
-                                cameraControls={true}
-                                onUserInteract={(info) => {
-                                  if (info && info.type === 'pointerup' && !hasMoved) {
-                                    setIsMoving(true);
-                                    setModelCentered(false);
-                                    setHasMoved(true);
-                                    setTimeout(() => setIsMoving(false), 900);
-                                  }
-                                }}
-                              />
+                              {selectedModelSrc ? (
+                                <ModelViewer
+                                  src={selectedModelSrc}
+                                  alt="3D Model"
+                                  cameraControls={true}
+                                  onUserInteract={(info) => {
+                                    if (info && info.type === 'pointerup' && !hasMoved) {
+                                      setIsMoving(true);
+                                      setModelCentered(false);
+                                      setHasMoved(true);
+                                      setTimeout(() => setIsMoving(false), 900);
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  {/* Placeholder or empty state when no model is available */}
+                                  <div className="text-gray-400 font-medium text-lg bg-white/50 px-6 py-4 rounded-xl backdrop-blur-sm border border-white/60 shadow-sm">
+                                    Select options from the panel
+                                  </div>
+                                  {/* Auto-trigger move to side effect if no model to interact with? 
+                                      Actually, if there is no model, the user can't "interact" to trigger the move.
+                                      We should probably auto-trigger the move or show the panel immediately.
+                                  */}
+                                </div>
+                              )}
                             </div>
                           </motion.div>
                         </motion.div>

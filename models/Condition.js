@@ -20,7 +20,7 @@ const ConditionSchema = new mongoose.Schema({
     // Allow other fields
 }, {
     strict: false,
-    collection: 'half_updated_cardiac' // Explicitly target the collection from the screenshot
+    collection: 'completed_original_clinical' // Explicitly target the collection from the screenshot
 });
 
 export default mongoose.models.Condition || mongoose.model('Condition', ConditionSchema);
