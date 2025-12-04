@@ -322,11 +322,11 @@ const ChatbotUI = () => {
                       <div className="flex flex-col gap-4 mb-8">
                         <div className="flex items-center gap-3">
                           <div className="w-4 h-4 bg-[#90EE90] rounded-sm"></div>
-                          <span className="text-xl font-handwritten">usually ap</span>
+                          <span className="text-xl font-handwritten">USUALLY AP</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-4 h-4 bg-[#FFFFE0] rounded-sm"></div>
-                          <span className="text-xl font-handwritten">maybe ap</span>
+                          <span className="text-xl font-handwritten">MAYBE AP</span>
                         </div>
                       </div>
 
@@ -334,14 +334,14 @@ const ChatbotUI = () => {
                         onClick={handleToggleNotAppropriate}
                         className={`px-6 py-3 border-2 ${showNotAppropriate ? '' : ''} border-black text-black rounded-full hover:bg-red-500/10 transition-colors font-handwritten text-xl`}
                       >
-                        {showNotAppropriate ? 'hide not ap choices' : 'show not ap choices'}
+                        {showNotAppropriate ? 'HIDE NOT AP CHOICES' : 'SHOW NOT AP CHOICES'}
                       </button>
 
                       <button
                         onClick={handleStartAgain}
                         className="px-6 py-3 border-2 border-black text-black rounded-full hover:bg-red-500/10 transition-colors font-handwritten text-xl"
                       >
-                        start again
+                        START AGAIN
                       </button>
                     </div>
                   </div>
