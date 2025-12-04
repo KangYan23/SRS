@@ -9,6 +9,7 @@ export function TypingSelection({
   onSelect = () => { },
   className = "",
   showHeader = true,
+  listMaxHeight = "max-h-60",
 }) {
   // single selected index (only one may be selected at a time)
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -43,7 +44,7 @@ export function TypingSelection({
         </motion.p>
       )}
 
-      <div className="flex flex-col gap-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+      <div className={`flex flex-col gap-3 ${listMaxHeight} overflow-y-auto pr-2 custom-scrollbar`}>
         <AnimatePresence mode="wait">
           {showOptions && options.map((opt, i) => {
             const selected = selectedIndex === i;

@@ -443,8 +443,8 @@ const ChatbotUI = () => {
                   {!show3D && (
                     <div className="flex flex-col w-full h-full relative">
                       {/* Header */}
-                      <div className="w-full flex justify-center mt-4 mb-2 h-32 shrink-0 z-10">
-                        <HandWrittenTitle title="CHOOSE BODY AREA" subtitle="" />
+                      <div className="w-full flex justify-center mt-4 mb-4 h-40 shrink-0 z-10">
+                        <HandWrittenTitle title="CHOOSE BODY AREA" subtitle="" className="py-12" />
                       </div>
 
                       {/* Main Content */}
@@ -469,29 +469,29 @@ const ChatbotUI = () => {
 
                         {/* Right: Grid Selection */}
                         <div className="w-[50%] h-full flex items-center justify-center pl-4">
-                          <div className="grid grid-cols-5 gap-3 w-full">
+                          <div className="grid grid-cols-6 gap-3 w-full">
                             {[
-                              { name: 'Abdomen', action: 'abdomen' },
+                              { name: 'Abdomen', action: 'abdomen', model: '/3d-model/abdomen_anatomy.glb' },
                               { name: 'Abdomen-Pelvis', action: 'abdomen-pelvis' },
                               { name: 'Breast', action: 'breast', model: '/3d-model/human_female_breast_anatomy.glb' },
-                              { name: 'Cardiac', action: 'cardiac', model: '/3d-model/stylizedhumanheart.glb', image: '/photo/cardiac.jpg', subtitle: '(Heart)' },
+                              { name: 'Cardiac', action: 'cardiac', model: '/3d-model/stylizedhumanheart.glb' },
                               { name: 'Cardiac-Chest', action: 'cardiac-chest' },
                               { name: 'Cardiac-Chest-Pelvis', action: 'cardiac-chest-pelvis' },
-                              { name: 'Chest', action: 'chest' },
+                              { name: 'Chest', action: 'chest', model: '/3d-model/chest.glb' },
                               { name: 'Chest-Abdomen', action: 'chest-abdomen' },
                               { name: 'Chest-Abdomen-Pelvis', action: 'chest-abdomen-pelvis' },
-                              { name: 'Extremities', action: 'extremities' },
-                              { name: 'Head', action: 'head' },
+                              { name: 'Extremities', action: 'extremities', model: '/3d-model/arms_hands_head_legs_and_feet__low_poly_female.glb' },
+                              { name: 'Head', action: 'head', model: '/3d-model/head_study.glb' },
                               { name: 'Head-Neck', action: 'head-neck' },
                               { name: 'Head-Neck-Chest-Abdomen', action: 'head-neck-chest-abdomen' },
                               { name: 'Head-Spine', action: 'head-spine' },
                               { name: 'Lower Extremity', action: 'lower extremity' },
                               { name: 'Maxface', action: 'maxface' },
-                              { name: 'Neck', action: 'neck' },
+                              { name: 'Neck', action: 'neck', model: '/3d-model/neck.glb' },
                               { name: 'Neck-Chest', action: 'neck-chest' },
                               { name: 'Neck-Chest-Abdomen-Pelvis', action: 'neck-chest-abdomen-pelvis' },
-                              { name: 'Pelvis', action: 'pelvis' },
-                              { name: 'Spine', action: 'spine' },
+                              { name: 'Pelvis', action: 'pelvis', model: '/3d-model/VH_F_Pelvis.glb' },
+                              { name: 'Spine', action: 'spine', model: '/3d-model/the_human_spinal_column.glb' },
                               { name: 'Spine-Pelvis', action: 'spine-pelvis' },
                               { name: 'Unspecified', action: 'unspecified' },
                               { name: 'Upper Extremity', action: 'upper extremity' }
@@ -550,8 +550,8 @@ const ChatbotUI = () => {
                           transition={{ duration: 0.32 }}
                         >
                           <button
-                            onClick={(e) => { 
-                              e.stopPropagation(); 
+                            onClick={(e) => {
+                              e.stopPropagation();
                               setShow3D(false);
                               setActiveBodyArea(null);
                               setSelectedPanel(null);
@@ -564,7 +564,7 @@ const ChatbotUI = () => {
                           >
                             &lt; Back
                           </button>
-                          
+
                           <button
                             onClick={(e) => { e.stopPropagation(); setShow3D(false); }}
                             aria-label="Close 3D"
@@ -615,6 +615,8 @@ const ChatbotUI = () => {
                             style={{ right: '1rem', boxShadow: 'none' }}
                           >
                             <TypingSelection
+                              key={activeBodyArea}
+                              listMaxHeight="max-h-48"
                               className="premium-glass-panel"
                               text={"Choose the panel"}
                               options={panels.map(p => ({ label: p }))}
@@ -627,6 +629,8 @@ const ChatbotUI = () => {
 
                             {selectedPanel && (
                               <TypingSelection
+                                key={selectedPanel}
+                                listMaxHeight="max-h-48"
                                 className="premium-glass-panel mt-4"
                                 text={"Choose the condition"}
                                 options={conditions}
