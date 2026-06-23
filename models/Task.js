@@ -11,6 +11,8 @@ const TaskSchema = new mongoose.Schema(
     completedAt: { type: Date, default: null },
     dailyReset: { type: Boolean, default: false },
     reminderSent: { type: Boolean, default: false },
+    urgent: { type: Boolean, default: false },
+    important: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
