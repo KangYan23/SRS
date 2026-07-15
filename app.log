@@ -1,0 +1,15 @@
+
+> srs@0.1.0 start /home/ubuntu/SRS
+> next start
+
+   ▲ Next.js 16.0.10
+   - Local:         http://localhost:3000
+   - Network:       http://169.254.0.21:3000
+
+ ✓ Starting...
+ ✓ Ready in 950ms
+API response for /api/conditions exceeds 8MB. API Routes are meant to respond quickly. https://nextjs.org/docs/messages/api-routes-response-size-limit
+API response for /api/conditions exceeds 8MB. API Routes are meant to respond quickly. https://nextjs.org/docs/messages/api-routes-response-size-limit
+API response for /api/conditions exceeds 8MB. API Routes are meant to respond quickly. https://nextjs.org/docs/messages/api-routes-response-size-limit
+API response for /api/conditions exceeds 8MB. API Routes are meant to respond quickly. https://nextjs.org/docs/messages/api-routes-response-size-limit
+API response for /api/conditions exceeds 8MB. API Routes are meant to respond quickly. https://nextjs.org/docs/messages/api-routes-response-size-limit

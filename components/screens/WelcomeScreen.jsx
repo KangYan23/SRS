@@ -82,16 +82,22 @@ export default function WelcomeScreen({ onStart }) {
           src="/photo/transparenbody.png"
           alt="Medical Illustration"
           className="object-contain max-h-[90vh] w-auto"
+          loading="lazy"
         />
       </div>
     </div>
   );
 
-  // Mobile view
+  // Mobile view - optimized for all screen sizes
   const renderMobile = () => (
-    <div className="bg-white h-screen w-full flex flex-col items-center pt-8 px-4">
-      {/* Text on top */}
-      <div className="flex flex-col items-center w-full gap-0 mt-15">
+    <div 
+      className="bg-white h-screen w-full flex flex-col items-center justify-between px-4 py-6 safe-area overflow-hidden"
+      style={{
+        background: "radial-gradient(125% 125% at 50% 90%, #fff 40%, #4180de 100%)",
+      }}
+    >
+      {/* Text on top - responsive sizing */}
+      <div className="flex flex-col items-center w-full gap-0 pt-2">
         <motion.div className="w-full" animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }} transition={{ duration: 9, repeat: Infinity }}>
           <GooeyText
             texts={["WELCOME"]}
@@ -99,8 +105,8 @@ export default function WelcomeScreen({ onStart }) {
             cooldownTime={1}
             blurAmount={10}
             alignment="center"
-            className="font-bold h-24 w-full overflow-visible"
-            textClassName="text-5xl text-black tracking-tighter text-center"
+            className="font-bold h-16 sm:h-20 w-full overflow-visible"
+            textClassName="text-3xl sm:text-4xl md:text-5xl text-black tracking-tighter text-center"
           />
         </motion.div>
         <motion.div className="w-full" animate={{ scale: [1, 1.05, 1], opacity: [0.8, 1, 0.8] }} transition={{ duration: 9, repeat: Infinity }}>
@@ -110,27 +116,30 @@ export default function WelcomeScreen({ onStart }) {
             cooldownTime={1}
             blurAmount={10}
             alignment="center"
-            className="font-bold h-24 w-full overflow-visible"
-            textClassName="text-5xl text-black tracking-tighter text-center"
+            className="font-bold h-16 sm:h-20 w-full overflow-visible"
+            textClassName="text-3xl sm:text-4xl md:text-5xl text-black tracking-tighter text-center"
           />
         </motion.div>
       </div>
 
-      {/* Image in middle */}
-      <div className="flex justify-center w-150">
+      {/* Image in middle - responsive sizing */}
+      <div className="flex justify-center flex-1 w-full max-w-xs">
         <img
           src="/photo/transparenbody.png"
           alt="Medical Illustration"
-          className="object-contain max-h-[40vh] w-auto"
+          className="object-contain w-full h-auto max-h-[30vh] sm:max-h-[35vh]"
+          loading="lazy"
         />
       </div>
 
       {/* Paragraph + button at bottom */}
-      <div className="flex flex-col items-center gap-4 w-full pt-10">
-        <p className="font-semibold text-2xl text-black text-center leading-tight">
-          How's your <br></br> patient today?
+      <div className="flex flex-col items-center gap-3 sm:gap-4 w-full pb-4">
+        <p className="font-semibold text-base sm:text-lg md:text-2xl text-black text-center leading-tight px-2">
+          How's your patient today?
         </p>
-        <StartChatButton onClick={onStart} />
+        <div className="w-full max-w-xs px-2">
+          <StartChatButton onClick={onStart} />
+        </div>
       </div>
     </div>
   );
